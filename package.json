@@ -1,0 +1,19 @@
+{
+  "name": "menav",
+  "version": "1.0.0",
+  "description": "A personal navigation website",
+  "main": "generator.js",
+  "scripts": {
+    "generate": "node generator.js"
+  },
+  "keywords": [
+    "navigation",
+    "website",
+    "personal"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+} 
