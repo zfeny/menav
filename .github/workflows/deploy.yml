@@ -31,10 +31,21 @@ jobs:
         
       - name: Prepare deployment
         run: |
-          mkdir dist
+          # 确保目录存在
+          mkdir -p dist
+          
+          # 复制网站文件
           cp index.html dist/
           cp style.css dist/
           cp script.js dist/
+          
+          # 显示文件列表以验证
+          echo "Deployment files:"
+          ls -la dist/
+          
+          # 检查文件内容
+          echo "Checking index.html..."
+          head -n 10 dist/index.html
           
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
