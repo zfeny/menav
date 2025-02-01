@@ -26,32 +26,16 @@ jobs:
           npm init -y
           npm install js-yaml
           
-      - name: Create necessary files
-        run: |
-          # 创建基本的样式文件
-          echo "/* 基本样式 */
-          body { font-family: Arial, sans-serif; }
-          .loading { display: none; }
-          " > style.css
-          
-          # 创建基本的脚本文件
-          echo "// 基本脚本
-          console.log('Navigation site loaded');
-          " > script.js
-          
       - name: Generate site
         run: node generator.js
         
-      - name: List files
-        run: ls -la
-        
-      - name: Create dist directory
+      - name: Prepare deployment
         run: |
-          mkdir -p dist
+          mkdir dist
           cp index.html dist/
           cp style.css dist/
           cp script.js dist/
-        
+          
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
