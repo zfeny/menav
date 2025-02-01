@@ -22,10 +22,15 @@ jobs:
           node-version: '16'
           
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm init -y
+          npm install js-yaml
           
       - name: Generate site
         run: node generator.js
+        
+      - name: List files
+        run: ls -la
         
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
