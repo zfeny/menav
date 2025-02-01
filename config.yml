@@ -8,7 +8,7 @@ site:
 profile:
   title: Hello,
   subtitle: Welcome to My Navigation
-  description:8
+  description: 导航菜单
 
 # 导航菜单
 navigation:
