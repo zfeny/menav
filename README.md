@@ -32,6 +32,11 @@ cd menav
 
 2. 安装依赖
 ```bash
+# 清理旧的依赖(如果需要)
+rm -rf node_modules
+rm -f package-lock.json
+
+# 安装新的依赖
 npm install
 ```
 
@@ -45,9 +50,8 @@ npm install
 
 4. 本地预览
 ```bash
-npm run generate
+npm run dev
 ```
-然后在浏览器中打开 `index.html` 文件
 
 ## 部署方式
 
@@ -118,6 +122,12 @@ categories:
         icon: 网站图标
         description: 网站描述
 ```
+
+## 版本
+
+当前版本: v1.2.3
+
+查看 [CHANGELOG.md](./CHANGELOG.md) 了解详细的更新历史。
 
 ## 贡献
 
