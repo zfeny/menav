@@ -53,16 +53,15 @@ npm run generate
 
 ### GitHub Pages 部署
 
-注意：GitHub Pages 在免费计划下只支持公开仓库。如果你需要保持仓库私有，建议使用 Cloudflare Pages 部署（支持私有仓库）。
+注意：GitHub Pages 在免费计划下只支持公开仓库。如果你需要保持仓库私有，建议：
+- 升级到 GitHub Pro 或更高级的付费计划
+- 或使用 Cloudflare Pages 部署（支持私有仓库）
 
 部署步骤：
 1. Fork 这个仓库
-2. 修改 `config.yml` 文件，自定义你的导航内容
-3. 提交更改
-4. 等待 GitHub Actions 自动完成部署（约1-2分钟）
-5. 访问你的站点：`https://你的用户名.github.io/menav/`
-
-全程自动化部署，无需任何手动设置。
+2. 修改你的配置
+3. 推送到GitHub
+4. 启用GitHub Pages（选择 gh-pages 分支）
 
 ### Cloudflare Pages 部署
 
