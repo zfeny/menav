@@ -7,9 +7,11 @@ on:
   
 # 设置GITHUB_TOKEN的权限
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
+  issues: write
+  actions: write
 
 # 允许一个并发部署
 concurrency:
@@ -57,15 +59,25 @@ jobs:
             const issueBody = `
             # 部署指南
             
-            请按照以下简单步骤完成网站部署:
+            请按照以下步骤完成网站部署:
             
-            1. 进入仓库设置 Settings -> Pages
-            2. 在 "Source" 下拉菜单中选择 "GitHub Actions"
-            3. 点击 Save
+            1. 首先确保正确配置权限:
+               - 进入仓库的 Settings -> Actions -> General
+               - 在 "Workflow permissions" 部分
+               - 选择 "Read and write permissions"
+               - 勾选 "Allow GitHub Actions to create and approve pull requests"
+               - 点击 Save
             
-            完成后,工作流将自动部署您的导航站点。
+            2. 然后配置 Pages:
+               - 进入仓库的 Settings -> Pages
+               - 在 "Build and deployment" 部分
+               - Source: 选择 "GitHub Actions"
+               - 点击 Save
             
+            完成以上步骤后,工作流将自动部署您的网站。
             部署完成后,您可以在 Settings -> Pages 中找到您的网站地址。
+            
+            如果遇到权限相关错误,请确保完成了步骤1的所有配置。
             `;
             
             await github.rest.issues.create({
