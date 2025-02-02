@@ -7,52 +7,46 @@ on:
   # 添加fork后的首次运行触发
   fork:
   
+# 设置GITHUB_TOKEN的权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+  
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         
-      - name: Check GitHub Pages status
-        id: pages-status
-        run: |
-          if [ "$(gh api repos/${{ github.repository }}/pages --jq .status)" != "null" ]; then
-            echo "GitHub Pages is already enabled"
-            echo "pages_enabled=true" >> $GITHUB_OUTPUT
-          else
-            echo "GitHub Pages needs to be enabled manually"
-            echo "pages_enabled=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-          
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
+          cache: 'npm'
           
       - name: Install dependencies
-        run: npm install
+        run: npm ci
           
       - name: Generate site
-        run: node generator.js
+        run: npm run generate
         
-      - name: Deploy to GitHub Pages
-        if: steps.pages-status.outputs.pages_enabled == 'true'
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          folder: .
-          branch: gh-pages
-          clean: true
+          path: '.'
           
       - name: Create deployment guide issue
-        if: steps.pages-status.outputs.pages_enabled == 'false'
+        if: github.event_name == 'fork'
         uses: actions/github-script@v6
         with:
           script: |
@@ -76,4 +70,15 @@ jobs:
               title: '🚀 如何部署您的导航站点',
               body: issueBody,
               labels: ['documentation']
-            }); 
+            });
+          
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2 
