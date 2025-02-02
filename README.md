@@ -2,8 +2,6 @@
 
 一个简洁美观的个人导航网站，帮助你整理和展示你的网络收藏。
 
-[![部署状态](https://github.com/RZLNB/menav/actions/workflows/deploy.yml/badge.svg)](https://github.com/RZLNB/menav/actions/workflows/deploy.yml)
-
 ## 在线预览
 
 访问：[https://rzlnb.github.io/menav/](https://rzlnb.github.io/menav/)
@@ -53,63 +51,29 @@ npm run generate
 
 ## 部署方式
 
-### GitHub Pages 一键部署
+### 快速部署到GitHub Pages
 
-只需三步即可完成部署:
+1. 点击右上角的 Fork 按钮复制此仓库到您的账号
+2. 修改 `config.yml` 中的配置信息
+3. 在仓库设置中启用 GitHub Pages:
+   - 进入仓库的 Settings -> Pages
+   - 在 "Source" 下拉菜单中选择 "GitHub Actions"
+   - 点击 Save
 
-1. 点击右上角的 Fork 按钮，复制这个仓库到你的账号
+完成以上步骤后,系统会自动部署您的网站。部署完成后,您可以在 Settings -> Pages 中找到您的网站地址。
 
-2. 修改配置文件
-   - 打开 `config.yml` 文件
-   - 根据你的需求修改网站内容
-   - 提交更改
+> 提示：首次fork后,系统会自动创建一个部署指南issue,您可以按照指南完成部署。
 
-3. 等待自动部署
-   - 提交更改后，GitHub Actions 会自动开始构建和部署
-   - 部署完成后，你可以通过 `https://你的用户名.github.io/menav` 访问你的网站
-   - 部署状态可以在仓库的 Actions 标签页查看
+### 高级部署选项：Cloudflare Pages
 
-注意：首次部署可能需要等待1-2分钟。如果遇到问题：
-- 确保仓库设置中的 Actions 权限已启用
-- 检查仓库的 Actions 标签页中的部署日志
+如果您需要更好的访问速度或私有仓库支持,可以选择使用Cloudflare Pages部署:
 
-### Cloudflare Pages 部署
-
-支持公开和私有仓库，完全免费。
-
-1. Fork 仓库到你的GitHub账号
-
-2. 登录 Cloudflare Dashboard
-   - 进入 Pages 页面
-   - 点击 "Create a project"
-   - 选择 "Connect to Git"
-   - 选择你fork的仓库
-
-3. 设置构建配置
-   - 构建命令：`npm run generate`
-   - 构建输出目录：`/`
-   - Node.js 版本：`16`（或更高版本）
-
-4. 环境变量（可选）
-   ```
-   NODE_VERSION: 16
-   ```
-
-5. 部署
-   - 点击 "Save and Deploy"
-   - Cloudflare Pages 会自动构建和部署你的网站
-   - 部署完成后，你会得到一个 `*.pages.dev` 的域名
-
-6. 自定义域名（可选）
-   - 在项目设置中添加你的自定义域名
-   - 按照 Cloudflare 的说明配置 DNS 记录
-
-优点：
-- 全球 CDN 加速
-- 自动 HTTPS
-- 持续部署
-- 免费额度大
-- 可以绑定自定义域名
+1. 在 [Cloudflare Dashboard](https://dash.cloudflare.com) 中创建新项目
+2. 连接您的GitHub仓库
+3. 使用以下构建配置:
+   - 构建命令: `npm run generate`
+   - 构建输出目录: `/`
+   - Node.js 版本: `16`或更高
 
 ## 自定义配置
 

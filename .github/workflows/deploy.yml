@@ -2,10 +2,11 @@ name: Deploy Navigation Site
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
-
+  # 添加fork后的首次运行触发
+  fork:
+  
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -18,43 +19,61 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         
+      - name: Check GitHub Pages status
+        id: pages-status
+        run: |
+          if [ "$(gh api repos/${{ github.repository }}/pages --jq .status)" != "null" ]; then
+            echo "GitHub Pages is already enabled"
+            echo "pages_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "GitHub Pages needs to be enabled manually"
+            echo "pages_enabled=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           
       - name: Install dependencies
-        run: |
-          npm install
-          if [ $? -ne 0 ]; then
-            echo "Failed to install dependencies"
-            exit 1
-          fi
+        run: npm install
           
       - name: Generate site
-        run: |
-          node generator.js
-          if [ $? -ne 0 ]; then
-            echo "Failed to generate site"
-            exit 1
-          fi
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+        run: node generator.js
         
       - name: Deploy to GitHub Pages
+        if: steps.pages-status.outputs.pages_enabled == 'true'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: .
           branch: gh-pages
           clean: true
-
-      - name: Enable GitHub Pages
-        run: |
-          gh api \
-            --method PUT \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/pages \
-            -f source='{"branch":"gh-pages","path":"/"}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          
+      - name: Create deployment guide issue
+        if: steps.pages-status.outputs.pages_enabled == 'false'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueBody = `
+            # 部署指南
+            
+            请按照以下简单步骤完成网站部署:
+            
+            1. 进入仓库设置 Settings -> Pages
+            2. 在 "Source" 下拉菜单中选择 "GitHub Actions"
+            3. 点击 Save
+            
+            完成后,工作流将自动部署您的导航站点。
+            
+            部署完成后,您可以在 Settings -> Pages 中找到您的网站地址。
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚀 如何部署您的导航站点',
+              body: issueBody,
+              labels: ['documentation']
+            }); 
