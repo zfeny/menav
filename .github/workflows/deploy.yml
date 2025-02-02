@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write
+      id-token: write
     
     steps:
       - name: Checkout repository
@@ -22,14 +24,37 @@ jobs:
           node-version: '16'
           
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          if [ $? -ne 0 ]; then
+            echo "Failed to install dependencies"
+            exit 1
+          fi
           
       - name: Generate site
-        run: node generator.js
+        run: |
+          node generator.js
+          if [ $? -ne 0 ]; then
+            echo "Failed to generate site"
+            exit 1
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
         
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: .
           branch: gh-pages
-          clean: true 
+          clean: true
+
+      - name: Enable GitHub Pages
+        run: |
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/pages \
+            -f source='{"branch":"gh-pages","path":"/"}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

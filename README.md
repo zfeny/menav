@@ -2,6 +2,8 @@
 
 一个简洁美观的个人导航网站，帮助你整理和展示你的网络收藏。
 
+[![部署状态](https://github.com/RZLNB/menav/actions/workflows/deploy.yml/badge.svg)](https://github.com/RZLNB/menav/actions/workflows/deploy.yml)
+
 ## 在线预览
 
 访问：[https://rzlnb.github.io/menav/](https://rzlnb.github.io/menav/)
@@ -51,17 +53,25 @@ npm run generate
 
 ## 部署方式
 
-### GitHub Pages 部署
+### GitHub Pages 一键部署
 
-注意：GitHub Pages 在免费计划下只支持公开仓库。如果你需要保持仓库私有，建议：
-- 升级到 GitHub Pro 或更高级的付费计划
-- 或使用 Cloudflare Pages 部署（支持私有仓库）
+只需三步即可完成部署:
 
-部署步骤：
-1. Fork 这个仓库
-2. 修改你的配置
-3. 推送到GitHub
-4. 启用GitHub Pages（选择 gh-pages 分支）
+1. 点击右上角的 Fork 按钮，复制这个仓库到你的账号
+
+2. 修改配置文件
+   - 打开 `config.yml` 文件
+   - 根据你的需求修改网站内容
+   - 提交更改
+
+3. 等待自动部署
+   - 提交更改后，GitHub Actions 会自动开始构建和部署
+   - 部署完成后，你可以通过 `https://你的用户名.github.io/menav` 访问你的网站
+   - 部署状态可以在仓库的 Actions 标签页查看
+
+注意：首次部署可能需要等待1-2分钟。如果遇到问题：
+- 确保仓库设置中的 Actions 权限已启用
+- 检查仓库的 Actions 标签页中的部署日志
 
 ### Cloudflare Pages 部署
 
