@@ -21,4 +21,7 @@ Thumbs.db
 
 # 日志文件
 *.log
-logs/ 
+logs/
+
+# 用户配置文件
+config.user.yml 

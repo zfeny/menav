@@ -3,6 +3,7 @@ site:
   title: 我的导航
   description: 个人网络导航站
   author: Your Name
+  favicon: favicon.ico  # 网站图标,支持ico、png等格式
 
 # 个人信息
 profile:

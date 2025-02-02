@@ -57,16 +57,64 @@ npm run dev
 
 ### 快速部署到GitHub Pages
 
-1. 点击右上角的 Fork 按钮复制此仓库到您的账号
-2. 修改 `config.yml` 中的配置信息
-3. 在仓库设置中启用 GitHub Pages:
+#### 第一步：前置设置
+
+1. Fork仓库:
+   - 点击右上角的 Fork 按钮复制此仓库到您的账号
+
+2. 启用必要功能:
+   - 进入仓库的 Settings -> General
+   - 找到 Features 部分
+   - 勾选 "Issues"
+   - 点击页面底部的 Save 按钮
+
+3. 配置Actions:
+   a. 启用Actions:
+      - 进入fork后的仓库
+      - 点击顶部的 "Actions" 标签页
+      - 点击绿色按钮 "I understand my workflows, go ahead and enable them"
+   
+   b. 设置权限:
+      - 进入仓库的 Settings -> Actions -> General
+      - 在 "Actions permissions" 部分选择 "Allow all actions and reusable workflows"
+      - 在 "Workflow permissions" 部分:
+        * 选择 "Read and write permissions"
+        * 勾选 "Allow GitHub Actions to create and approve pull requests"
+      - 点击页面底部的 Save 按钮
+
+4. 配置Pages:
    - 进入仓库的 Settings -> Pages
-   - 在 "Source" 下拉菜单中选择 "GitHub Actions"
+   - 在 "Build and deployment" 部分
+   - Source: 选择 "GitHub Actions"
    - 点击 Save
+
+#### 第二步：自定义配置
+
+1. 创建个人配置文件:
+   - 复制 `config.yml` 为 `config.user.yml`
+   - 在 `config.user.yml` 中修改配置
+   - 这样在后续同步更新时,您的配置不会被覆盖
+
+2. 修改配置信息:
+   - 修改网站基本信息
+   - 添加/修改导航链接
+   - 自定义社交媒体链接
+   - 更新个人项目展示
+   - 添加友情链接等
 
 完成以上步骤后,系统会自动部署您的网站。部署完成后,您可以在 Settings -> Pages 中找到您的网站地址。
 
-> 提示：首次fork后,系统会自动创建一个部署指南issue,您可以按照指南完成部署。
+> 重要提示: 请务必使用 `config.user.yml` 进行配置,这样在同步上游更新时不会丢失您的个人设置。
+
+#### 故障排除
+
+如果遇到部署问题:
+1. 请确保完成了所有前置设置步骤
+2. 检查每个设置页面是否都点击了 Save 按钮
+3. 如果修改设置后部署仍然失败:
+   - 进入 Actions 标签页
+   - 找到失败的工作流
+   - 点击 "Re-run all jobs" 重新运行
 
 ### 高级部署选项：Cloudflare Pages
 
@@ -81,6 +129,20 @@ npm run dev
 
 ## 自定义配置
 
+### 配置文件说明
+
+本项目提供两种配置文件:
+1. `config.yml` - 默认配置模板,会随项目更新
+2. `config.user.yml` - 用户个人配置,不会被项目更新覆盖
+
+建议使用步骤:
+1. 复制 `config.yml` 为 `config.user.yml`
+2. 在 `config.user.yml` 中进行个性化配置
+3. 原始的 `config.yml` 保持不变
+4. 后续同步更新时,您的个人配置不会被覆盖
+
+> 注意: `config.user.yml` 已添加到 .gitignore 中,不会被提交到仓库
+
 ### 配置文件结构
 
 `config.yml` 包含以下主要部分：
@@ -91,6 +153,7 @@ site:
   title: 网站标题
   description: 网站描述
   author: 作者名
+  favicon: favicon.ico  # 网站图标,支持ico、png等格式
 
 # 个人信息
 profile:
@@ -107,6 +170,18 @@ navigation:
 
 # 更多配置...
 ```
+
+### 设置网站图标
+
+1. 准备图标文件:
+   - 支持.ico、.png等格式
+   - 建议尺寸为32x32或16x16像素
+   - 将图标文件放在仓库根目录
+
+2. 配置图标:
+   - 在`config.yml`的site部分设置favicon
+   - 例如: `favicon: favicon.ico`
+   - 也可以使用在线图标URL
 
 ### 添加新的网站链接
 
