@@ -4,8 +4,6 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  # 添加fork后的首次运行触发
-  fork:
   
 # 设置GITHUB_TOKEN的权限
 permissions:
@@ -20,6 +18,8 @@ concurrency:
   
 jobs:
   build:
+    # 只在原仓库或fork的仓库中运行
+    if: github.repository == 'RZLNB/menav' || github.event.repository.fork == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,7 +49,8 @@ jobs:
           path: '.'
           
       - name: Create deployment guide issue
-        if: github.event_name == 'fork'
+        # 只在fork的仓库中创建issue
+        if: github.event.repository.fork == true
         uses: actions/github-script@v7
         with:
           script: |
