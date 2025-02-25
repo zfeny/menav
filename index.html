@@ -110,6 +110,27 @@
                 </a>
             </div>
 
+            <!-- 导入/导出功能 -->
+            <div class="nav-section">
+                <div class="section-title">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="nav-item import-export-btn" id="exportDataBtn">
+                    <div class="icon-container">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <span class="nav-text">导出数据</span>
+                </div>
+                <div class="nav-item import-export-btn" id="importDataBtn">
+                    <div class="icon-container">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <span class="nav-text">导入数据</span>
+                </div>
+                <!-- 隐藏的文件上传输入 -->
+                <input type="file" id="importFileInput" style="display: none;" accept=".json,.yml,.yaml">
+            </div>
+
             <div class="copyright">
                 <p>© 2025 <a href="https://github.com/RZLNB/menav" target="_blank">MeNav</a></p>
                 <p>by <a href="https://github.com/RZLNB" target="_blank">RZLNB</a></p>
@@ -552,5 +573,106 @@
         </main>
     </div>
     <script src="script.js"></script>
+
+    <script>
+        // 从localStorage加载用户数据
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const userData = localStorage.getItem('menav_user_data');
+                if (userData) {
+                    const data = JSON.parse(userData);
+                    console.log('Loading user data from localStorage');
+                    
+                    // 应用用户配置
+                    applyUserData(data);
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+            
+            // 应用用户数据到页面
+            function applyUserData(data) {
+                try {
+                    // 应用分类和网站
+                    if (data.categories && data.categories.length > 0) {
+                        const homePage = document.getElementById('home');
+                        if (homePage) {
+                            // 保留欢迎区域
+                            const welcomeSection = homePage.querySelector('.welcome-section');
+                            
+                            // 清除当前分类
+                            const oldCategories = homePage.querySelectorAll('.category');
+                            oldCategories.forEach(cat => {
+                                if (!cat.classList.contains('welcome-section')) {
+                                    cat.remove();
+                                }
+                            });
+                            
+                            // 添加新分类
+                            data.categories.forEach(category => {
+                                const categoryElem = document.createElement('section');
+                                categoryElem.className = 'category';
+                                categoryElem.innerHTML = `
+                                    <h2><i class="${category.icon}"></i> ${category.name}</h2>
+                                    <div class="sites-grid"></div>
+                                `;
+                                
+                                const sitesGrid = categoryElem.querySelector('.sites-grid');
+                                
+                                // 添加站点
+                                category.sites.forEach(site => {
+                                    const siteCard = document.createElement('a');
+                                    siteCard.className = 'site-card';
+                                    siteCard.href = site.url;
+                                    siteCard.innerHTML = `
+                                        <i class="${site.icon}"></i>
+                                        <h3>${site.name}</h3>
+                                        <p>${site.description}</p>
+                                    `;
+                                    sitesGrid.appendChild(siteCard);
+                                });
+                                
+                                homePage.appendChild(categoryElem);
+                            });
+                        }
+                    }
+                    
+                    // 应用社交链接
+                    if (data.social && data.social.length > 0) {
+                        const socialSection = document.querySelector('.nav-section:has(.section-title i.fa-link)');
+                        if (socialSection) {
+                            // 清除当前社交链接
+                            const oldLinks = socialSection.querySelectorAll('.nav-item');
+                            oldLinks.forEach(link => link.remove());
+                            
+                            // 添加新社交链接
+                            data.social.forEach(link => {
+                                const linkElem = document.createElement('a');
+                                linkElem.className = 'nav-item';
+                                linkElem.href = link.url;
+                                linkElem.target = '_blank';
+                                linkElem.innerHTML = `
+                                    <div class="icon-container">
+                                        <i class="${link.icon}"></i>
+                                    </div>
+                                    <span class="nav-text">${link.name}</span>
+                                    <i class="fas fa-external-link-alt external-icon"></i>
+                                `;
+                                socialSection.appendChild(linkElem);
+                            });
+                        }
+                    }
+                    
+                    // 重新初始化搜索索引
+                    if (window.initSearchIndex) {
+                        window.initSearchIndex();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error applying user data:', error);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

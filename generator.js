@@ -2,6 +2,19 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const path = require('path');
 
+// HTML转义函数，防止XSS攻击
+function escapeHtml(unsafe) {
+    if (unsafe === undefined || unsafe === null) {
+        return '';
+    }
+    return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // 读取配置文件
 function loadConfig() {
     let config = {};
@@ -54,21 +67,21 @@ function mergeConfigs(defaultConfig, userConfig) {
 // 生成导航菜单
 function generateNavigation(navigation) {
     return navigation.map(nav => `
-                <a href="#" class="nav-item${nav.active ? ' active' : ''}" data-page="${nav.id}">
+                <a href="#" class="nav-item${nav.active ? ' active' : ''}" data-page="${escapeHtml(nav.id)}">
                     <div class="icon-container">
-                        <i class="${nav.icon}"></i>
+                        <i class="${escapeHtml(nav.icon)}"></i>
                     </div>
-                    <span class="nav-text">${nav.name}</span>
+                    <span class="nav-text">${escapeHtml(nav.name)}</span>
                 </a>`).join('\n');
 }
 
 // 生成网站卡片HTML
 function generateSiteCards(sites) {
     return sites.map(site => `
-                        <a href="${site.url}" class="site-card">
-                            <i class="${site.icon}"></i>
-                            <h3>${site.name}</h3>
-                            <p>${site.description}</p>
+                        <a href="${escapeHtml(site.url)}" class="site-card">
+                            <i class="${escapeHtml(site.icon)}"></i>
+                            <h3>${escapeHtml(site.name)}</h3>
+                            <p>${escapeHtml(site.description)}</p>
                         </a>`).join('\n');
 }
 
@@ -76,7 +89,7 @@ function generateSiteCards(sites) {
 function generateCategories(categories) {
     return categories.map(category => `
                 <section class="category">
-                    <h2><i class="${category.icon}"></i> ${category.name}</h2>
+                    <h2><i class="${escapeHtml(category.icon)}"></i> ${escapeHtml(category.name)}</h2>
                     <div class="sites-grid">
                         ${generateSiteCards(category.sites)}
                     </div>
@@ -86,11 +99,11 @@ function generateCategories(categories) {
 // 生成社交链接HTML
 function generateSocialLinks(social) {
     return social.map(link => `
-                <a href="${link.url}" class="nav-item" target="_blank">
+                <a href="${escapeHtml(link.url)}" class="nav-item" target="_blank">
                     <div class="icon-container">
-                        <i class="${link.icon}"></i>
+                        <i class="${escapeHtml(link.icon)}"></i>
                     </div>
-                    <span class="nav-text">${link.name}</span>
+                    <span class="nav-text">${escapeHtml(link.name)}</span>
                     <i class="fas fa-external-link-alt external-icon"></i>
                 </a>`).join('\n');
 }
@@ -99,14 +112,31 @@ function generateSocialLinks(social) {
 function generatePageContent(pageId, data) {
     return `
                 <div class="welcome-section">
-                    <h2>${data.title}</h2>
-                    <p class="subtitle">${data.subtitle}</p>
+                    <h2>${escapeHtml(data.title)}</h2>
+                    <p class="subtitle">${escapeHtml(data.subtitle)}</p>
                 </div>
                 ${generateCategories(data.categories)}`;
 }
 
 // 生成搜索结果页面
-function generateSearchResultsPage() {
+function generateSearchResultsPage(config) {
+    // 获取所有导航页面ID
+    const pageIds = config.navigation.map(nav => nav.id);
+    
+    // 生成所有页面的搜索结果区域
+    const searchSections = pageIds.map(pageId => {
+        // 根据页面ID获取对应的图标和名称
+        const navItem = config.navigation.find(nav => nav.id === pageId);
+        const icon = navItem ? navItem.icon : 'fas fa-file';
+        const name = navItem ? navItem.name : pageId;
+        
+        return `
+                <section class="category search-section" data-section="${escapeHtml(pageId)}" style="display: none;">
+                    <h2><i class="${escapeHtml(icon)}"></i> ${escapeHtml(name)}匹配项</h2>
+                    <div class="sites-grid"></div>
+                </section>`;
+    }).join('\n');
+
     return `
             <!-- 搜索结果页 -->
             <div class="page" id="search-results">
@@ -114,26 +144,7 @@ function generateSearchResultsPage() {
                     <h2>搜索结果</h2>
                     <p class="subtitle">在所有页面中找到的匹配项</p>
                 </div>
-
-                <section class="category search-section" data-section="home" style="display: none;">
-                    <h2><i class="fas fa-home"></i> 首页匹配项</h2>
-                    <div class="sites-grid"></div>
-                </section>
-
-                <section class="category search-section" data-section="projects" style="display: none;">
-                    <h2><i class="fas fa-project-diagram"></i> 项目匹配项</h2>
-                    <div class="sites-grid"></div>
-                </section>
-
-                <section class="category search-section" data-section="articles" style="display: none;">
-                    <h2><i class="fas fa-book"></i> 文章匹配项</h2>
-                    <div class="sites-grid"></div>
-                </section>
-
-                <section class="category search-section" data-section="friends" style="display: none;">
-                    <h2><i class="fas fa-users"></i> 朋友匹配项</h2>
-                    <div class="sites-grid"></div>
-                </section>
+${searchSections}
             </div>`;
 }
 
@@ -176,13 +187,14 @@ function generateFontVariables(config) {
 function generateHTML(config) {
     const googleFontsLink = generateGoogleFontsLink(config);
     const fontVariables = generateFontVariables(config);
+    const currentYear = new Date().getFullYear();
     
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${config.site.title}</title>
+    <title>${escapeHtml(config.site.title)}</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     ${googleFontsLink}
@@ -225,7 +237,7 @@ ${generateSocialLinks(config.social)}
             </div>
 
             <div class="copyright">
-                <p>© 2025 <a href="https://github.com/RZLNB/menav" target="_blank">MeNav</a></p>
+                <p>© ${currentYear} <a href="https://github.com/RZLNB/menav" target="_blank">MeNav</a></p>
                 <p>by <a href="https://github.com/RZLNB" target="_blank">RZLNB</a></p>
             </div>
         </nav>
@@ -243,9 +255,9 @@ ${generateSocialLinks(config.social)}
             <!-- 首页 -->
             <div class="page active" id="home">
                 <div class="welcome-section">
-                    <h2>${config.profile.title}</h2>
-                    <h3>${config.profile.subtitle}</h3>
-                    <p class="subtitle">${config.profile.description}</p>
+                    <h2>${escapeHtml(config.profile.title)}</h2>
+                    <h3>${escapeHtml(config.profile.subtitle)}</h3>
+                    <p class="subtitle">${escapeHtml(config.profile.description)}</p>
                 </div>
 ${generateCategories(config.categories)}
             </div>
@@ -264,7 +276,7 @@ ${generatePageContent('articles', config.articles)}
             <div class="page" id="friends">
 ${generatePageContent('friends', config.friends)}
             </div>
-${generateSearchResultsPage()}
+${generateSearchResultsPage(config)}
         </main>
     </div>
     <script src="script.js"></script>
