@@ -9,6 +9,8 @@ yarn-error.log*
 .idea/
 *.sublime-project
 *.sublime-workspace
+.specstory
+.cursorindexingignore
 
 # 系统文件
 .DS_Store
