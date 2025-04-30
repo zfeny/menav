@@ -4,7 +4,7 @@
 
 ## 在线预览
 
-访问：[https://rzlnb.github.io/menav/](https://rzlnb.github.io/menav/)
+访问：[https://rbetree.github.io/menav/](https://rbetree.github.io/menav/)
 
 ## 功能特点
 
@@ -26,7 +26,7 @@
 
 1. 克隆仓库
 ```bash
-git clone https://github.com/RZLNB/menav.git
+git clone https://github.com/rbetree/menav.git
 cd menav
 ```
 

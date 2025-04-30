@@ -3,7 +3,7 @@
   "version": "1.2.3",
   "description": "A personal navigation website",
   "main": "generator.js",
-  "homepage": "https://RZLNB.github.io/menav",
+  "homepage": "https://rbetree.github.io/menav",
   "scripts": {
     "generate": "node generator.js",
     "dev": "node generator.js && serve .",

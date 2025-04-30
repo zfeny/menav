@@ -237,8 +237,8 @@ ${generateSocialLinks(config.social)}
             </div>
 
             <div class="copyright">
-                <p>© ${currentYear} <a href="https://github.com/RZLNB/menav" target="_blank">MeNav</a></p>
-                <p>by <a href="https://github.com/RZLNB" target="_blank">RZLNB</a></p>
+                <p>© ${currentYear} <a href="https://github.com/rbetree/menav" target="_blank">MeNav</a></p>
+                <p>by <a href="https://github.com/rbetree" target="_blank">rbetree</a></p>
             </div>
         </nav>
 
