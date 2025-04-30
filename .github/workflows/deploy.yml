@@ -40,11 +40,11 @@ jobs:
         
       - name: Check favicon
         run: |
-          if [ -f favicon.ico ]; then
+          if [ -f dist/favicon.ico ]; then
             echo "Favicon exists"
-            ls -l favicon.ico
+            ls -l dist/favicon.ico
           else
-            echo "Warning: favicon.ico not found"
+            echo "Warning: favicon.ico not found in dist directory"
             exit 1
           fi
         
@@ -54,7 +54,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: 'dist'
           
   deploy:
     environment:

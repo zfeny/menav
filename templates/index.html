@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{SITE_TITLE}}</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    {{GOOGLE_FONTS}}
+    <style>
+{{{FONT_VARIABLES}}}
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="loading">
+    <div class="layout">
+        <!-- 移动端按钮 -->
+        <div class="mobile-buttons">
+            <button class="menu-toggle" aria-label="切换菜单">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="search-toggle" aria-label="切换搜索">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- 遮罩层 -->
+        <div class="overlay"></div>
+
+        <!-- 左侧导航 -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>{{SITE_LOGO_TEXT}}</h1>
+            </div>
+            
+            <div class="nav-section">
+                {{NAVIGATION}}
+            </div>
+
+            <div class="nav-section">
+                <div class="section-title">
+                    <i class="fas fa-link"></i>
+                </div>
+                {{SOCIAL_LINKS}}
+            </div>
+
+            <div class="copyright">
+                <p>© {{CURRENT_YEAR}} <a href="https://github.com/rbetree/menav" target="_blank">MeNav</a></p>
+                <p>by <a href="https://github.com/rbetree" target="_blank">rbetree</a></p>
+            </div>
+        </nav>
+
+        <!-- 右侧内容区 -->
+        <main class="content">
+            <!-- 搜索框容器 -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="搜索...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- 首页 -->
+            <div class="page active" id="home">
+                {{HOME_CONTENT}}
+            </div>
+
+            <!-- 项目页 -->
+            <div class="page" id="projects">
+                {{PROJECTS_CONTENT}}
+            </div>
+
+            <!-- 文章页 -->
+            <div class="page" id="articles">
+                {{ARTICLES_CONTENT}}
+            </div>
+
+            <!-- 朋友页 -->
+            <div class="page" id="friends">
+                {{FRIENDS_CONTENT}}
+            </div>
+            
+            {{SEARCH_RESULTS}}
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ site:
   description: 个人网络导航站
   author: Your Name
   favicon: favicon.ico  # 网站图标,支持ico、png等格式
+  logo_text: 导航站  # 左侧导航栏Logo文字
 
 # 字体设置
 fonts:
@@ -62,6 +63,10 @@ categories:
   - name: 常用网站
     icon: fas fa-star
     sites:
+      - name: Linux.do
+        url: https://linux.do/
+        icon: fab fa-linux
+        description: 新的理想型社区
       - name: Google
         url: https://www.google.com
         icon: fab fa-google

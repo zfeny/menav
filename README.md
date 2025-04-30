@@ -22,6 +22,23 @@
 - Font Awesome 图标
 - GitHub Pages / Cloudflare Pages 托管
 
+## 项目结构
+
+```
+menav/
+├── assets/           # 静态资源文件
+│   ├── style.css     # 样式表
+│   └── favicon.ico   # 网站图标
+├── src/              # 源代码
+│   ├── generator.js  # 静态网站生成器
+│   └── script.js     # 前端JavaScript脚本
+├── templates/        # HTML模板
+│   └── index.html    # HTML骨架模板文件
+├── dist/             # 生成的静态网站（由generator.js生成）
+├── config.yml        # 默认配置文件
+└── config.user.yml   # 用户自定义配置文件
+```
+
 ## 快速开始
 
 1. 克隆仓库
@@ -41,12 +58,14 @@ npm install
 ```
 
 3. 修改配置
-编辑 `config.yml` 文件，根据你的需求修改网站内容：
-- 修改网站基本信息
-- 添加/修改导航链接
-- 自定义社交媒体链接
-- 更新个人项目展示
-- 添加友情链接等
+- 复制 `config.yml` 为 `config.user.yml`
+- 在 `config.user.yml` 中根据你的需求修改网站内容：
+   - 修改网站基本信息
+   - 添加/修改导航链接
+   - 自定义社交媒体链接
+   - 更新个人项目展示
+   - 添加友情链接等
+
 
 4. 本地预览
 ```bash
@@ -82,7 +101,7 @@ npm run dev
 1. 创建个人配置文件:
    - 复制 `config.yml` 为 `config.user.yml`
    - 在 `config.user.yml` 中修改配置
-   - 这样在后续同步更新时,您的配置不会被覆盖
+   - 提交 `config.user.yml` 到您的仓库，这样GitHub Actions才能使用您的自定义配置进行构建
 
 2. 修改配置信息:
    - 修改网站基本信息
@@ -93,7 +112,7 @@ npm run dev
 
 完成以上步骤后,系统会自动部署您的网站。部署完成后,您可以在 Settings -> Pages 中找到您的网站地址。
 
-> 重要提示: 请务必使用 `config.user.yml` 进行配置,这样在同步上游更新时不会丢失您的个人设置。
+> 重要提示: 请务必使用 `config.user.yml` 进行配置,这样在同步上游更新时不会丢失您的个人设置。同时注意不要在配置文件中包含敏感信息，因为它将被提交到公开仓库。
 
 #### 故障排除
 
@@ -116,25 +135,29 @@ npm run dev
    - 构建输出目录: `/`
    - Node.js 版本: `16`或更高
 
-## 自定义配置
 
-### 配置文件说明
+### 模板说明
 
-本项目提供两种配置文件:
-1. `config.yml` - 默认配置模板,会随项目更新
-2. `config.user.yml` - 用户个人配置,不会被项目更新覆盖
+本项目使用模板与配置文件分离的方式生成网站:
 
-建议使用步骤:
-1. 复制 `config.yml` 为 `config.user.yml`
-2. 在 `config.user.yml` 中进行个性化配置
-3. 原始的 `config.yml` 保持不变
-4. 后续同步更新时,您的个人配置不会被覆盖
+1. `templates/index.html` 是不包含具体内容的HTML骨架模板:
+   - 使用占位符 (如 `{{SITE_TITLE}}`, `{{NAVIGATION}}`, `{{HOME_CONTENT}}`) 标记动态内容的位置
+   - 只包含页面结构、CSS引用和基本Javascript引用
 
-> 注意: `config.user.yml` 已添加到 .gitignore 中,不会被提交到仓库
+2. 工作原理:
+   - `generator.js` 读取配置文件 (优先使用 `config.user.yml`)
+   - 将配置内容注入到模板中的占位符位置
+   - 生成最终的静态HTML网站
+
+3. 优点:
+   - 清晰分离结构与内容
+   - 用户只需修改配置文件,不需要编辑HTML
+   - 便于更新与维护
+
 
 ### 配置文件结构
 
-`config.yml` 包含以下主要部分：
+`config.user.yml` 应包含以下主要部分：
 
 ```yaml
 # 网站基本信息
@@ -210,28 +233,28 @@ fonts:
 1. 准备图标文件:
    - 支持.ico、.png等格式
    - 建议尺寸为32x32或16x16像素
-   - 将图标文件放在仓库根目录
-   - 例如: `favicon.ico` 或 `favicon.png`
+   - 将图标文件放在assets目录下
+   - 例如: `assets/favicon.ico` 或 `assets/favicon.png`
 
 2. 配置图标:
    - 在`config.yml`或`config.user.yml`的site部分设置favicon
    - 使用相对于仓库根目录的路径
-   - 例如: `favicon: favicon.ico`
+   - 例如: `favicon: favicon.ico`（generator会自动从assets目录查找）
    - 也可以使用在线图标URL
 
 3. 生成和部署:
-   - 运行 `npm run generate` 时会自动复制图标文件
-   - 确保图标文件存在于指定位置
+   - 运行 `npm run generate` 时会自动复制图标文件到dist目录
+   - 确保图标文件存在于assets目录中
    - 部署后图标会自动显示在浏览器标签页
 
 > 提示: 如果图标没有显示,请检查:
-> 1. 图标文件是否存在于正确位置
+> 1. 图标文件是否存在于assets目录
 > 2. 配置文件中的路径是否正确
 > 3. 是否重新运行了生成命令
 
 ### 添加新的网站链接
 
-在 `config.yml` 中相应的分类下添加新站点：
+在 `config.user.yml` 中相应的分类下添加新站点：
 
 ```yaml
 categories:
@@ -244,11 +267,6 @@ categories:
         description: 网站描述
 ```
 
-## 版本
-
-当前版本: v1.2.3
-
-查看 [CHANGELOG.md](./CHANGELOG.md) 了解详细的更新历史。
 
 ## 贡献
 

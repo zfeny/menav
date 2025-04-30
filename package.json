@@ -2,12 +2,14 @@
   "name": "menav",
   "version": "1.2.3",
   "description": "A personal navigation website",
-  "main": "generator.js",
+  "main": "src/generator.js",
   "homepage": "https://rbetree.github.io/menav",
   "scripts": {
-    "generate": "node generator.js",
-    "dev": "node generator.js && serve .",
-    "clean": "rm -rf index.html"
+    "generate": "node src/generator.js",
+    "dev": "node src/generator.js && serve dist",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm run generate",
+    "restructure": "node restructure.js"
   },
   "keywords": [
     "navigation",
@@ -29,4 +31,4 @@
   "devDependencies": {
     "serve": "^14.2.1"
   }
-} 
+}

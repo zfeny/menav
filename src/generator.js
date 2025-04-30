@@ -108,6 +108,17 @@ function generateSocialLinks(social) {
                 </a>`).join('\n');
 }
 
+// 生成欢迎区域和首页内容
+function generateHomeContent(config) {
+    return `
+                <div class="welcome-section">
+                    <h2>${escapeHtml(config.profile.title)}</h2>
+                    <h3>${escapeHtml(config.profile.subtitle)}</h3>
+                    <p class="subtitle">${escapeHtml(config.profile.description)}</p>
+                </div>
+${generateCategories(config.categories)}`;
+}
+
 // 生成页面内容
 function generatePageContent(pageId, data) {
     return `
@@ -286,12 +297,36 @@ ${generateSearchResultsPage(config)}
 
 // 复制静态文件
 function copyStaticFiles(config) {
+    // 确保dist目录存在
+    if (!fs.existsSync('dist')) {
+        fs.mkdirSync('dist', { recursive: true });
+    }
+    
+    // 复制CSS文件
+    try {
+        fs.copyFileSync('assets/style.css', 'dist/style.css');
+        console.log('Copied style.css to dist/');
+    } catch (e) {
+        console.error('Error copying style.css:', e);
+    }
+    
+    // 复制JavaScript文件
+    try {
+        fs.copyFileSync('src/script.js', 'dist/script.js');
+        console.log('Copied script.js to dist/');
+    } catch (e) {
+        console.error('Error copying script.js:', e);
+    }
+    
     // 如果配置了favicon，确保文件存在并复制
     if (config.site.favicon) {
         try {
-            if (fs.existsSync(config.site.favicon)) {
-                fs.copyFileSync(config.site.favicon, path.basename(config.site.favicon));
-                console.log(`Copied favicon: ${config.site.favicon}`);
+            if (fs.existsSync(`assets/${config.site.favicon}`)) {
+                fs.copyFileSync(`assets/${config.site.favicon}`, `dist/${path.basename(config.site.favicon)}`);
+                console.log(`Copied favicon: ${config.site.favicon} to dist/`);
+            } else if (fs.existsSync(config.site.favicon)) {
+                fs.copyFileSync(config.site.favicon, `dist/${path.basename(config.site.favicon)}`);
+                console.log(`Copied favicon: ${config.site.favicon} to dist/`);
             } else {
                 console.warn(`Warning: Favicon file not found: ${config.site.favicon}`);
             }
@@ -301,15 +336,65 @@ function copyStaticFiles(config) {
     }
 }
 
+// 处理模板文件，替换占位符
+function processTemplate(template, config) {
+    const currentYear = new Date().getFullYear();
+    const googleFontsLink = generateGoogleFontsLink(config);
+    const fontVariables = generateFontVariables(config);
+    
+    // 创建替换映射
+    const replacements = {
+        '{{SITE_TITLE}}': escapeHtml(config.site.title),
+        '{{SITE_LOGO_TEXT}}': escapeHtml(config.site.logo_text || '导航站'), // 从配置中获取，如果不存在则使用默认值
+        '{{GOOGLE_FONTS}}': googleFontsLink,
+        '{{{FONT_VARIABLES}}}': fontVariables,
+        '{{NAVIGATION}}': generateNavigation(config.navigation),
+        '{{SOCIAL_LINKS}}': generateSocialLinks(config.social),
+        '{{CURRENT_YEAR}}': currentYear,
+        '{{HOME_CONTENT}}': generateHomeContent(config),
+        '{{PROJECTS_CONTENT}}': generatePageContent('projects', config.projects),
+        '{{ARTICLES_CONTENT}}': generatePageContent('articles', config.articles),
+        '{{FRIENDS_CONTENT}}': generatePageContent('friends', config.friends),
+        '{{SEARCH_RESULTS}}': generateSearchResultsPage(config)
+    };
+    
+    // 执行替换
+    let processedTemplate = template;
+    for (const [placeholder, value] of Object.entries(replacements)) {
+        processedTemplate = processedTemplate.replace(placeholder, value);
+    }
+    
+    return processedTemplate;
+}
+
 // 主函数
 function main() {
     const config = loadConfig();
-    const html = generateHTML(config);
     
     try {
+        // 确保dist目录存在
+        if (!fs.existsSync('dist')) {
+            fs.mkdirSync('dist', { recursive: true });
+        }
+        
+        // 读取模板文件
+        const templatePath = 'templates/index.html';
+        let htmlContent = '';
+        
+        if (fs.existsSync(templatePath)) {
+            // 读取模板并处理
+            const template = fs.readFileSync(templatePath, 'utf8');
+            htmlContent = processTemplate(template, config);
+            console.log(`Using template from ${templatePath} and injecting content`);
+        } else {
+            // 如果没有模板文件，使用生成的HTML
+            htmlContent = generateHTML(config);
+            console.log('No template file found, using generated HTML');
+        }
+        
         // 生成HTML
-        fs.writeFileSync('index.html', html);
-        console.log('Successfully generated index.html');
+        fs.writeFileSync('dist/index.html', htmlContent);
+        console.log('Successfully generated dist/index.html');
         
         // 复制静态文件
         copyStaticFiles(config);
