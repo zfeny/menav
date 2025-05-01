@@ -104,7 +104,7 @@ function generateNavigation(navigation) {
 // 生成网站卡片HTML
 function generateSiteCards(sites) {
     return sites.map(site => `
-                        <a href="${escapeHtml(site.url)}" class="site-card">
+                        <a href="${escapeHtml(site.url)}" class="site-card" title="${escapeHtml(site.name)} - ${escapeHtml(site.description)}">
                             <i class="${escapeHtml(site.icon)}"></i>
                             <h3>${escapeHtml(site.name)}</h3>
                             <p>${escapeHtml(site.description)}</p>

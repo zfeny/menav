@@ -193,10 +193,10 @@ MeNav使用单一的GitHub Actions工作流处理书签导入与网站部署，�
 
 1. **触发条件**:
    - 当您推送任何更改到主分支（特别是向 `bookmarks` 目录添加HTML文件）时
-   - 手动触发工作流时（通过GitHub Actions界面）
+   - 手动触发工作流时
 
 2. **书签处理步骤**:
-   - 自动检测 `bookmarks/` 目录中的HTML文件
+   - 自动检测 `bookmarks` 目录中的HTML文件
    - 使用 `bookmark-processor.js` 脚本处理书签文件
    - 生成/更新 `bookmarks.yml` 配置文件
    - 提交更改（如有）并保存至仓库
