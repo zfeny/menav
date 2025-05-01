@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 即时移除loading类，确保侧边栏可见
+    document.body.classList.remove('loading');
+    document.body.classList.add('loaded');
+    
     const searchInput = document.getElementById('search');
     const siteCards = document.querySelectorAll('.site-card');
     const categories = document.querySelectorAll('.category');
@@ -15,17 +19,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchContainer = document.querySelector('.search-container');
     const overlay = document.querySelector('.overlay');
     
+    // 主题切换元素
+    const themeToggle = document.querySelector('.theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+    
     let isSearchActive = false;
     let currentPageId = 'home';
     let isInitialLoad = true;
     let isSidebarOpen = false;
     let isSearchOpen = false;
+    let isLightTheme = false; // 主题状态
     
     // 搜索索引，用于提高搜索效率
     let searchIndex = {
         initialized: false,
         items: []
     };
+    
+    // 主题切换功能
+    function toggleTheme() {
+        isLightTheme = !isLightTheme;
+        document.body.classList.toggle('light-theme', isLightTheme);
+        
+        // 更新图标
+        if (isLightTheme) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+        
+        // 保存主题偏好到localStorage
+        localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
+    }
+    
+    // 初始化主题
+    function initTheme() {
+        // 从localStorage获取主题偏好
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'light') {
+            isLightTheme = true;
+            document.body.classList.add('light-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            isLightTheme = false;
+            document.body.classList.remove('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+    
+    // 主题切换按钮点击事件
+    themeToggle.addEventListener('click', toggleTheme);
     
     // 初始化搜索索引
     function initSearchIndex() {
@@ -483,6 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始化
     window.addEventListener('load', () => {
+        // 初始化主题
+        initTheme();
+        
         // 延迟一帧执行初始化，确保样式已经应用
         requestAnimationFrame(() => {
             // 显示首页

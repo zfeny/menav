@@ -215,7 +215,7 @@ function generateHTML(config) {
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="loading">
+<body class="loaded">
     <div class="layout">
         <!-- 移动端按钮 -->
         <div class="mobile-buttons">
@@ -291,6 +291,11 @@ ${generatePageContent('friends', config.friends)}
             </div>
 ${generateSearchResultsPage(config)}
         </main>
+        
+        <!-- 主题切换按钮 -->
+        <button class="theme-toggle" aria-label="切换主题">
+            <i class="fas fa-moon"></i>
+        </button>
     </div>
     <script src="script.js"></script>
 </body>

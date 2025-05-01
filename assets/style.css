@@ -1,3 +1,87 @@
+/* 主题颜色变量 */
+:root {
+    /* 深色主题（默认） */
+    --bg-color: #1a1b1e;
+    --sidebar-bg: #2d2e32;
+    --card-bg-gradient-1: #2f3035;
+    --card-bg-gradient-2: #2b2c30;
+    --site-card-bg-gradient-1: #363940;
+    --site-card-bg-gradient-2: #31343a;
+    --text-color: #e4e6eb;
+    --text-muted: #8b8c8f;
+    --text-bright: #ffffff;
+    --secondary-bg: #3a3b3f;
+    --border-color: rgba(255, 255, 255, 0.05);
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --highlight-bg: rgba(74, 158, 255, 0.3);
+    --scrollbar-color: rgba(255, 255, 255, 0.15);
+    --scrollbar-hover-color: rgba(255, 255, 255, 0.25);
+    --accent-color: #4a9eff;
+    --accent-hover: #3a8eef;
+    --nav-item-color: #a1a2a5;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+    --white-color: #ffffff;
+    --gradient-color: linear-gradient(135deg, #4a9eff 0%, #a855f7 50%, #ff6b6b 100%);
+    --gradient-color-simple: linear-gradient(135deg, #4a9eff 0%, #a855f7 100%);
+}
+
+/* 浅色主题 */
+body.light-theme {
+    --bg-color: #e0e0d8;
+    --sidebar-bg: #f0f0eb;
+    --card-bg-gradient-1: #f0f0eb;
+    --card-bg-gradient-2: #e9e9e4;
+    --site-card-bg-gradient-1: #f0f0eb;
+    --site-card-bg-gradient-2: #e5e5e0;
+    --text-color: #333333;
+    --text-muted: #666666;
+    --text-bright: #000000;
+    --secondary-bg: #d9d9d4;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --highlight-bg: rgba(74, 158, 255, 0.15);
+    --scrollbar-color: rgba(0, 0, 0, 0.1);
+    --scrollbar-hover-color: rgba(0, 0, 0, 0.2);
+    --accent-color: #4a9eff;
+    --accent-hover: #3a8eef;
+    --nav-item-color: #666666;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+    --white-color: #ffffff;
+    --gradient-color: linear-gradient(135deg, #4a9eff 0%, #a855f7 50%, #ff6b6b 100%);
+    --gradient-color-simple: linear-gradient(135deg, #4a9eff 0%, #a855f7 100%);
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: var(--text-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    border: none;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.theme-toggle:active {
+    transform: translateY(0) scale(0.95);
+}
+
 /* 全局样式 */
 * {
     margin: 0;
@@ -8,7 +92,7 @@
 /* 通用滚动条样式 */
 .custom-scrollbar {
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+    scrollbar-color: var(--scrollbar-color) transparent; /* Firefox */
 }
 
 /* Webkit滚动条样式（Chrome, Safari, Edge等） */
@@ -21,12 +105,12 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15); /* 更柔和的颜色 */
+    background-color: var(--scrollbar-color); /* 使用变量 */
     border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.25); /* 悬停时稍微亮一点 */
+    background-color: var(--scrollbar-hover-color); /* 使用变量 */
 }
 
 /* 防止滚动条导致的布局偏移 */
@@ -37,33 +121,39 @@ html {
 
 /* 搜索高亮样式 */
 .highlight {
-    background-color: rgba(74, 158, 255, 0.3);
+    background-color: var(--highlight-bg);
     border-radius: 2px;
     padding: 0 2px;
     font-weight: bold;
-    color: #ffffff;
+    color: var(--text-color);
 }
 
 body {
     font-family: var(--font-body);
     font-weight: var(--font-weight-body);
     line-height: 1.6;
-    background-color: #1a1b1e;
-    color: #e4e6eb;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
     overflow: hidden; /* 防止body滚动 */
     padding-right: 0 !important; /* 防止滚动条导致的布局偏移 */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 布局 */
 .layout {
     display: flex;
     min-height: 100vh;
-    opacity: 0;
-    animation: fadeIn 0.3s ease-out forwards;
     position: relative;
     z-index: 1;
     overflow: hidden; /* 防止layout滚动 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 确保加载后立即显示 */
+body.loaded .layout {
+    opacity: 1;
 }
 
 /* 移动端基础样式 */
@@ -82,9 +172,9 @@ body {
 
 .menu-toggle,
 .search-toggle {
-    background: #2d2e32;
+    background: var(--sidebar-bg);
     border: none;
-    color: #fff;
+    color: var(--text-color);
     width: 40px;
     height: 40px;
     border-radius: 10px;
@@ -93,15 +183,15 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px var(--shadow-color);
     pointer-events: auto; /* 恢复按钮的点击事件 */
 }
 
 .menu-toggle:hover,
 .search-toggle:hover {
-    background: #3a3b3f;
+    background: var(--secondary-bg);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .menu-toggle:active,
@@ -132,12 +222,12 @@ body {
 /* 侧边栏样式 */
 .sidebar {
     width: 240px;
-    background-color: #2d2e32;
+    background-color: var(--sidebar-bg);
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 10px var(--shadow-color);
     z-index: 100;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -152,8 +242,9 @@ body {
         "footer";
     /* 应用自定义滚动条样式 */
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+    scrollbar-color: var(--scrollbar-color) transparent; /* Firefox */
     overflow-y: hidden; /* 防止整个侧边栏滚动 */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 /* 侧边栏头部区域 */
@@ -172,7 +263,7 @@ body {
     gap: 1rem; /* 从2rem减小到1rem */
     /* 自定义滚动条样式 */
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+    scrollbar-color: var(--scrollbar-color) transparent; /* Firefox */
 }
 
 /* 侧边栏底部区域 - 版权信息 */
@@ -180,30 +271,32 @@ body {
     grid-area: footer;
     padding: 1rem 1.2rem;
     text-align: center;
-    color: #8b8c8f;
+    color: var(--text-muted);
     font-size: 0.85rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    background-color: #2d2e32; /* 与侧边栏背景色相同 */
+    border-top: 1px solid var(--border-color);
+    background-color: var(--sidebar-bg); /* 使用变量 */
     margin-top: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .copyright a {
-    color: #4a9eff;
+    color: var(--accent-color);
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .copyright a:hover {
-    color: #3a8eef;
+    color: var(--accent-hover);
     text-decoration: underline;
 }
 
 .logo h1 {
     font-size: 1.4rem;
-    color: #fff;
+    color: var(--text-bright);
     margin-bottom: 1rem;
     padding-left: 0.5rem;
     letter-spacing: 0.5px;
+    transition: color 0.3s ease;
 }
 
 /* 导航区域样式 */
@@ -215,12 +308,13 @@ body {
 
 .section-title {
     font-size: 1rem;
-    color: #4a9eff;
+    color: var(--accent-color);
     padding: 0.5rem;
     margin-bottom: 0.4rem; /* 稍微减小标题底部边距 */
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: color 0.3s ease;
 }
 
 .section-title i {
@@ -231,7 +325,7 @@ body {
     display: flex;
     align-items: center;
     padding: 0.8rem;
-    color: #a1a2a5;
+    color: var(--nav-item-color);
     text-decoration: none;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -258,8 +352,8 @@ body {
 }
 
 .nav-item:hover {
-    background-color: #3a3b3f;
-    color: #fff;
+    background-color: var(--secondary-bg);
+    color: var(--text-bright);
 }
 
 .nav-item:hover .external-icon {
@@ -268,8 +362,8 @@ body {
 }
 
 .nav-item.active {
-    background-color: #3a3b3f;
-    color: #fff;
+    background-color: var(--secondary-bg);
+    color: var(--text-bright);
 }
 
 .nav-item i {
@@ -282,7 +376,7 @@ body {
     flex: 1;
     margin-left: 240px;
     padding: 2rem 0;
-    background-color: #1a1b1e;
+    background-color: var(--bg-color);
     position: relative;
     height: 100vh; /* 固定高度 */
     overflow-y: auto; /* 使用auto替代scroll，只在需要时显示滚动条 */
@@ -293,7 +387,8 @@ body {
     align-items: center;
     /* 应用自定义滚动条样式 */
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+    scrollbar-color: var(--scrollbar-color) transparent; /* Firefox */
+    transition: background-color 0.3s ease;
 }
 
 .content::-webkit-scrollbar {
@@ -305,12 +400,12 @@ body {
 }
 
 .content::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15); /* 更柔和的颜色 */
+    background-color: var(--scrollbar-color);
     border-radius: 4px;
 }
 
 .content::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.25); /* 悬停时稍微亮一点 */
+    background-color: var(--scrollbar-hover-color);
 }
 
 /* 搜索框容器 - 固定在顶部 */
@@ -330,8 +425,9 @@ body {
     position: relative;
     width: 100%;
     max-width: 600px;
-    background-color: #2d2e32;
+    background-color: var(--sidebar-bg);
     border-radius: 12px;
+    transition: background-color 0.3s ease;
 }
 
 .search-box::after {
@@ -348,12 +444,12 @@ body {
 }
 
 .search-box.has-results::after {
-    background-color: #4caf50;
+    background-color: var(--success-color);
     opacity: 1;
 }
 
 .search-box.no-results::after {
-    background-color: #f44336;
+    background-color: var(--error-color);
     opacity: 1;
 }
 
@@ -363,20 +459,20 @@ body {
     border: none;
     border-radius: 12px;
     background-color: transparent;
-    color: #fff;
+    color: var(--text-color);
     font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .search-box input:focus {
     outline: none;
-    background-color: #3a3b3f;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: var(--secondary-bg);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .search-box input::placeholder {
-    color: #8b8c8f;
+    color: var(--text-muted);
 }
 
 .search-box i {
@@ -384,16 +480,16 @@ body {
     right: 1.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #8b8c8f;
+    color: var(--text-muted);
     transition: all 0.3s ease;
 }
 
 .search-box.has-results i {
-    color: #4caf50;
+    color: var(--success-color);
 }
 
 .search-box.no-results i {
-    color: #f44336;
+    color: var(--error-color);
 }
 
 /* 页面容器 */
@@ -426,9 +522,10 @@ body {
     font-family: var(--font-title);
     font-weight: var(--font-weight-title);
     font-size: 2.4rem;
-    color: #fff;
+    color: var(--text-bright);
     margin-bottom: 0.5rem;
     letter-spacing: 0.5px;
+    transition: color 0.3s ease;
 }
 
 .welcome-section h3 {
@@ -437,7 +534,7 @@ body {
     font-size: 2rem;
     margin-bottom: 1rem;
     letter-spacing: 0.3px;
-    background: linear-gradient(135deg, #4a9eff 0%, #a855f7 50%, #ff6b6b 100%);
+    background: var(--gradient-color);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -461,9 +558,10 @@ body {
 }
 
 .welcome-section .subtitle {
-    color: #8b8c8f;
+    color: var(--text-muted);
     font-size: 1.1rem;
     line-height: 1.5;
+    transition: color 0.3s ease;
 }
 
 @keyframes glow {
@@ -479,7 +577,7 @@ body {
 
 /* 分类样式 */
 .category {
-    background: linear-gradient(145deg, #2f3035, #2b2c30);
+    background: linear-gradient(145deg, var(--card-bg-gradient-1), var(--card-bg-gradient-2));
     border-radius: 16px;
     padding: 2rem;
     margin: 0 auto 2.5rem auto;
@@ -489,22 +587,24 @@ body {
     z-index: 1;
     opacity: 0;
     animation: fadeIn 0.5s ease-out forwards;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 4px 20px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .category h2 {
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
-    color: #fff;
+    color: var(--text-bright);
     display: flex;
     align-items: center;
     gap: 0.8rem;
     letter-spacing: 0.3px;
+    transition: color 0.3s ease;
 }
 
 .category h2 i {
-    color: #4a9eff;
+    color: var(--accent-color);
     font-size: 1.3rem;
 }
 
@@ -520,12 +620,12 @@ body {
 
 /* 网站卡片样式 */
 .site-card {
-    background: linear-gradient(145deg, #363940, #31343a);
+    background: linear-gradient(145deg, var(--site-card-bg-gradient-1), var(--site-card-bg-gradient-2));
     border-radius: 12px;
     padding: 1.2rem;
     text-decoration: none;
     color: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -535,43 +635,45 @@ body {
     will-change: transform;
     max-width: 100%;
     position: relative;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 16px var(--shadow-color);
+    border: 1px solid var(--border-color);
     z-index: 2;
 }
 
 .site-card:hover {
     transform: translateY(-4px);
-    background: linear-gradient(145deg, #3e4249, #383b41);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(145deg, var(--secondary-bg), var(--site-card-bg-gradient-1));
+    box-shadow: 0 6px 20px var(--shadow-color);
+    border-color: var(--border-color);
 }
 
 .site-card i {
     font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: #4a9eff;
+    color: var(--accent-color);
     transition: all 0.3s ease;
 }
 
 .site-card:hover i {
     transform: scale(1.1);
-    color: #5ba9ff;
+    color: var(--accent-hover);
 }
 
 .site-card h3 {
     font-size: 1rem;
     margin-bottom: 0.5rem;
-    color: #fff;
+    color: var(--text-bright);
     font-weight: 500;
     letter-spacing: 0.3px;
+    transition: color 0.3s ease;
 }
 
 .site-card p {
     font-size: 0.9rem;
-    color: #a1a2a5;
+    color: var(--nav-item-color);
     margin: 0;
     line-height: 1.4;
+    transition: color 0.3s ease;
 }
 
 /* 添加编辑按钮 */
@@ -592,7 +694,7 @@ body {
 .edit-btn, .delete-btn {
     background: none;
     border: none;
-    color: #8b8c8f;
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0.3rem;
     border-radius: 4px;
@@ -600,17 +702,17 @@ body {
 }
 
 .edit-btn:hover, .delete-btn:hover {
-    color: #fff;
-    background-color: #4a4b4f;
+    color: var(--text-bright);
+    background-color: var(--secondary-bg);
 }
 
 /* 添加网站按钮 */
 .add-site-btn {
-    background: linear-gradient(145deg, #363940, #31343a);
-    border: 2px dashed rgba(255, 255, 255, 0.1);
+    background: linear-gradient(145deg, var(--site-card-bg-gradient-1), var(--site-card-bg-gradient-2));
+    border: 2px dashed var(--border-color);
     border-radius: 14px;
     padding: 1.5rem;
-    color: #8b8c8f;
+    color: var(--text-muted);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
@@ -618,15 +720,15 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 180px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px var(--shadow-color);
 }
 
 .add-site-btn:hover {
-    background: linear-gradient(145deg, #3e4249, #383b41);
-    border-color: #4a9eff;
-    color: #fff;
+    background: linear-gradient(145deg, var(--secondary-bg), var(--site-card-bg-gradient-1));
+    border-color: var(--accent-color);
+    color: var(--text-bright);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px var(--shadow-color);
 }
 
 .add-site-btn i {
@@ -660,16 +762,17 @@ body {
 }
 
 .modal-content {
-    background-color: #2d2e32;
+    background-color: var(--sidebar-bg);
     border-radius: 16px;
     padding: 2.2rem;
     width: 90%;
     max-width: 520px;
     position: relative;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px var(--shadow-color);
     transform: scale(0.95);
     opacity: 0;
     animation: modalContentShow 0.3s ease-out forwards;
+    transition: background-color 0.3s ease;
 }
 
 .modal-header {
@@ -680,16 +783,17 @@ body {
 }
 
 .modal-header h3 {
-    color: #fff;
+    color: var(--text-bright);
     font-size: 1.3rem;
     letter-spacing: 0.3px;
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .close-modal {
     background: none;
     border: none;
-    color: #8b8c8f;
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 1.5rem;
     padding: 0.5rem;
@@ -698,8 +802,8 @@ body {
 }
 
 .close-modal:hover {
-    color: #fff;
-    background-color: #3a3b3f;
+    color: var(--text-bright);
+    background-color: var(--secondary-bg);
 }
 
 /* 表单样式 */
@@ -716,31 +820,32 @@ body {
 }
 
 .form-group label {
-    color: #8b8c8f;
+    color: var(--text-muted);
     font-size: 0.95rem;
     letter-spacing: 0.2px;
+    transition: color 0.3s ease;
 }
 
 .form-group input, .form-group select {
-    background-color: #3a3b3f;
+    background-color: var(--secondary-bg);
     border: 1px solid transparent;
     border-radius: 10px;
     padding: 0.9rem 1.2rem;
-    color: #fff;
+    color: var(--text-color);
     font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px var(--shadow-color);
 }
 
 .form-group input:focus, .form-group select:focus {
     outline: none;
-    background-color: #3a3b3f;
-    border-color: #4a9eff;
+    background-color: var(--secondary-bg);
+    border-color: var(--accent-color);
     box-shadow: 0 2px 8px rgba(74, 158, 255, 0.15);
 }
 
 .form-group input::placeholder {
-    color: #8b8c8f;
+    color: var(--text-muted);
 }
 
 .form-actions {
@@ -759,30 +864,30 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px var(--shadow-color);
 }
 
 .btn-primary {
-    background-color: #4a9eff;
-    color: #fff;
+    background-color: var(--accent-color);
+    color: var(--white-color);
 }
 
 .btn-primary:hover {
-    background-color: #3a8eef;
+    background-color: var(--accent-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
 }
 
 .btn-secondary {
-    background-color: #3a3b3f;
-    color: #8b8c8f;
+    background-color: var(--secondary-bg);
+    color: var(--text-muted);
 }
 
 .btn-secondary:hover {
-    background-color: #4a4b4f;
-    color: #fff;
+    background-color: var(--secondary-bg);
+    color: var(--text-bright);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* 响应式设计 */
@@ -799,83 +904,66 @@ body {
 }
 
 @media (max-width: 768px) {
-    /* 显示移动端按钮 */
     .mobile-buttons {
         display: flex;
     }
-
-    /* 内容区域样式 */
+    
     .content {
         margin-left: 0;
         max-width: 100vw;
-        padding: 4.5rem 1rem 2rem;
-        height: 100vh; /* 确保在移动端也是100vh高度 */
-        overflow-y: auto; /* 保持auto设置一致 */
+        padding-top: 5rem;
     }
-
-    /* 侧边栏样式 */
+    
     .sidebar {
         transform: translateX(-100%);
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        width: 240px;
-        z-index: 150;
-        /* 调整Grid布局在移动端的表现 */
-        grid-template-rows: minmax(80px, auto) 1fr auto;
+        box-shadow: none;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    /* 移动端侧边栏头部调整 */
+    
     .sidebar .logo {
-        padding-top: calc(2rem + 60px); /* 增加顶部padding，为按钮留出空间 */
+        padding-top: 3rem;
     }
-
+    
     .sidebar.active {
         transform: translateX(0);
+        box-shadow: 2px 0 10px var(--shadow-color);
     }
-
-    /* 搜索框容器样式 */
+    
     .search-container {
         position: fixed;
-        top: calc(1rem + 50px); /* 将搜索框下移，避开按钮 */
-        right: 1rem;
-        width: 0;
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        background: transparent;
-        z-index: 150;
-    }
-
-    .search-container.active {
-        width: calc(100% - 2rem); /* 调整宽度计算 */
-        right: 1rem; /* 统一右侧间距 */
-    }
-
-    .search-box {
+        top: 0;
+        left: 0;
         width: 100%;
-        opacity: 0;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 1rem;
+        background-color: var(--bg-color);
+        transform: translateY(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 95;
+        box-shadow: 0 2px 10px var(--shadow-color);
     }
-
+    
+    .search-container.active {
+        transform: translateY(0);
+    }
+    
+    .search-box {
+        max-width: 100%;
+    }
+    
     .search-container.active .search-box {
-        opacity: 1;
+        margin-bottom: 0;
     }
-
-    /* 搜索框样式优化 */
+    
     .search-box input {
         padding: 0.8rem 3rem 0.8rem 1.2rem;
         font-size: 0.95rem;
-        background-color: #2d2e32;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
-
+    
     .search-box i {
         right: 1.2rem;
     }
-
-    /* 导航文字显示 */
+    
     .sidebar .logo h1,
-    .sidebar .section-title,
     .sidebar .nav-item span {
         opacity: 1;
         display: block;
@@ -893,7 +981,7 @@ body {
 
     .welcome-section h3 {
         font-size: 1.6rem;
-        background: linear-gradient(135deg, #4a9eff 0%, #a855f7 100%);
+        background: var(--gradient-color-simple);
         -webkit-background-clip: text;
         background-clip: text;
         animation: glow 3s ease-in-out infinite alternate;
@@ -907,6 +995,12 @@ body {
 
     .sites-grid {
         gap: 1rem;
+    }
+    
+    /* 在移动端的主题切换按钮 */
+    .theme-toggle {
+        bottom: 1rem;
+        right: 1rem;
     }
 }
 
@@ -974,49 +1068,26 @@ body {
 .search-section .sites-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1.2rem; /* 确保间距一致 */
-    position: relative;
-    z-index: 1;
-    width: 100%;
+    gap: 1.2rem;
+    margin-top: 1rem;
 }
 
-/* 确保搜索结果中的卡片样式正确 */
+/* 确保搜索结果中的卡片样式一致 */
 .search-section .site-card {
-    margin: 0; /* 重置可能的外边距 */
-    width: 100%; /* 确保宽度正确 */
+    max-width: 100%;
 }
 
-/* 清除之前可能导致问题的样式 */
+/* 加载中动画 */
 .page {
-    transform: none !important;
-    visibility: visible;
-    transition: none;
-    width: 100% !important; /* 确保宽度一致 */
-    left: 0 !important; /* 确保位置固定 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* 优化布局结构 */
-.layout {
-    position: relative;
-    z-index: 1;
+.page.active {
+    opacity: 1;
 }
 
-.sidebar {
-    z-index: 100;
-}
-
-/* 确保内容不会重叠 */
-.site-card {
-    position: relative;
-    z-index: 2;
-}
-
-.sites-grid {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-}
-
+/* 模态框动画 */
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -1029,10 +1100,14 @@ body {
 @keyframes modalContentShow {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.9);
     }
     to {
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.sites-grid {
+    transition: gap 0.3s ease;
 }

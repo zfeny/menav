@@ -10,6 +10,7 @@ dist/
 .idea/
 .specstory
 .cursorindexingignore
+.cursor
 
 # 系统文件
 .DS_Store
