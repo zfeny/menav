@@ -236,15 +236,17 @@ function generateHTML(config) {
                 <h1>导航站</h1>
             </div>
             
-            <div class="nav-section">
+            <div class="sidebar-content">
+                <div class="nav-section">
 ${generateNavigation(config.navigation)}
-            </div>
-
-            <div class="nav-section">
-                <div class="section-title">
-                    <i class="fas fa-link"></i>
                 </div>
+
+                <div class="nav-section">
+                    <div class="section-title">
+                        <i class="fas fa-link"></i>
+                    </div>
 ${generateSocialLinks(config.social)}
+                </div>
             </div>
 
             <div class="copyright">
