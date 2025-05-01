@@ -12,7 +12,6 @@
 - [快速开始](#快速开始)
 - [部署方式](#部署方式)
   - [快速部署到GitHub Pages](#快速部署到github-pages)
-  - [高级部署选项：Cloudflare Pages](#高级部署选项cloudflare-pages)
 - [书签导入功能](#书签导入功能)
   - [使用方法](#使用方法)
   - [自动化工作流程详解](#自动化工作流程详解)
@@ -71,7 +70,7 @@
 - HTML5 + CSS3
 - JavaScript (原生)
 - Font Awesome 图标
-- GitHub Pages / Cloudflare Pages 托管
+- GitHub Pages托管
 
 ## 项目结构
 
@@ -176,16 +175,6 @@ npm run dev
    - 找到失败的工作流
    - 点击 "Re-run all jobs" 重新运行
 
-### 高级部署选项：Cloudflare Pages
-
-如果您需要更好的访问速度或私有仓库支持,可以选择使用Cloudflare Pages部署:
-
-1. 在 [Cloudflare Dashboard](https://dash.cloudflare.com) 中创建新项目
-2. 连接您的GitHub仓库
-3. 使用以下构建配置:
-   - 构建命令: `npm run generate`
-   - 构建输出目录: `/`
-   - Node.js 版本: `16`或更高
 
 ## 书签导入功能
 
