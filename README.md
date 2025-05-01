@@ -206,14 +206,15 @@ npm run dev
    - 系统会扫描 `bookmarks` 目录，查找最新的HTML书签文件
    - 解析书签文件中的链接和文件夹结构
    - 自动为书签分配适当的图标
-   - 生成 `bookmarks.yml` 配置文件
+   - 生成 `bookmarks.user.yml` 配置文件（而不是直接修改 `bookmarks.yml`）
    - 处理完成后会自动清空 `bookmarks` 目录(防止重复处理)
    - 重新构建并部署网站
 
 4. **注意事项**
    - 每次只处理一个书签文件，如有多个文件，系统会选择最新的那个
    - 书签导入是构建时的一次性操作，不会在浏览器中保存或同步您的书签
-   - 如果想要更新书签，可以直接编辑 `bookmarks.yml`，或重新导出书签文件并重新导入
+   - 如果想要更新书签，可以直接编辑 `bookmarks.user.yml`，或重新导出书签文件并重新导入
+   - 系统会优先使用 `bookmarks.user.yml`，如果同时存在 `bookmarks.yml`，它们的内容会被合并（用户配置优先）
 
 ### 自动化工作流程详解
 
@@ -226,7 +227,7 @@ MeNav使用单一的GitHub Actions工作流处理书签导入与网站部署，�
 2. **书签处理步骤**:
    - 自动检测 `bookmarks` 目录中的HTML文件
    - 使用 `bookmark-processor.js` 脚本处理书签文件
-   - 生成/更新 `bookmarks.yml` 配置文件
+   - 生成/更新 `bookmarks.user.yml` 配置文件
    - 提交更改（如有）并保存至仓库
    - 自动清理已处理的HTML书签文件
 
@@ -241,10 +242,10 @@ MeNav使用单一的GitHub Actions工作流处理书签导入与网站部署，�
 
 ### 书签配置自定义
 
-处理后生成的 `bookmarks.yml` 文件可以手动编辑以进一步自定义:
+处理后生成的 `bookmarks.user.yml` 文件可以手动编辑以进一步自定义:
 
 ```yaml
-# 自动生成的书签配置示例
+# 自动生成的书签配置示例（用户自定义版本）
 title: 我的书签
 subtitle: 从浏览器导入的书签收藏
 categories:
@@ -265,7 +266,10 @@ categories:
 - 重新组织书签分类结构
 - 添加或删除特定书签
 
-**提示**: 尽管自动处理会清理原始HTML文件，但修改后的 `bookmarks.yml` 会被保留，您可以随时手动编辑它来更新书签内容。
+**提示**: 
+- 尽管自动处理会清理原始HTML文件，但修改后的 `bookmarks.user.yml` 会被保留，您可以随时手动编辑它来更新书签内容
+- 如果项目中同时存在 `bookmarks.yml` 和 `bookmarks.user.yml`，系统会合并两者的内容，以 `bookmarks.user.yml` 中的配置为优先
+- 这种设计允许您在更新源仓库时保留自己的书签配置
 
 ### 模板说明
 

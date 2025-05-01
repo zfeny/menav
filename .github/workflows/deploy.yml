@@ -53,21 +53,51 @@ jobs:
           
       - name: Process bookmark file
         if: steps.check_bookmark_files.outputs.found == 'true'
-        run: node src/bookmark-processor.js
+        run: |
+          echo "Processing bookmark files..."
+          node src/bookmark-processor.js
+          
+      - name: Debug directory contents
+        if: steps.check_bookmark_files.outputs.found == 'true'
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Does bookmarks.user.yml exist?"
+          if [ -f bookmarks.user.yml ]; then 
+            echo "YES - bookmarks.user.yml exists"
+            cat bookmarks.user.yml | head -n 10
+          else 
+            echo "NO - bookmarks.user.yml does not exist"
+          fi
         
-      - name: Commit bookmarks.yml changes
+      - name: Commit bookmarks.user.yml changes
         if: steps.check_bookmark_files.outputs.found == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action (Bookmarks)"
-          # 检查 bookmarks.yml 是否真的被修改了
-          if ! git diff --quiet bookmarks.yml; then
-            echo "bookmarks.yml changed, committing..."
-            git add bookmarks.yml
-            git commit -m "Update bookmarks.yml from imported bookmarks"
-            # 不需要push，因为构建步骤会使用当前工作区的内容
+          
+          # Check if the file exists
+          if [ -f bookmarks.user.yml ]; then
+            # Check if file is already tracked by git
+            if git ls-files --error-unmatch bookmarks.user.yml 2>/dev/null; then
+              echo "bookmarks.user.yml exists and is tracked by git"
+              # Check if it has changes
+              if ! git diff --quiet bookmarks.user.yml; then
+                echo "bookmarks.user.yml has changes, committing..."
+                git add bookmarks.user.yml
+                git commit -m "Update bookmarks.user.yml from imported bookmarks"
+              else
+                echo "No changes to bookmarks.user.yml"
+              fi
+            else
+              echo "bookmarks.user.yml exists but is not tracked by git (new file)"
+              git add bookmarks.user.yml
+              git commit -m "Add bookmarks.user.yml from imported bookmarks"
+            fi
           else
-            echo "No changes to bookmarks.yml"
+            echo "ERROR: bookmarks.user.yml does not exist! Bookmark processing may have failed."
+            echo "Current directory contents:"
+            ls -la
           fi
           
       - name: Clean up processed bookmark files
@@ -97,6 +127,20 @@ jobs:
         # 使用 GITHUB_TOKEN 推送
         if: steps.check_bookmark_files.outputs.found == 'true'
         run: |
+          echo "Checking git status before pushing..."
+          git status
+          
+          echo "Checking bookmarks.user.yml existence before pushing..."
+          if [ -f bookmarks.user.yml ]; then 
+            echo "bookmarks.user.yml exists with content:"
+            ls -la bookmarks.user.yml
+            echo "First 5 lines:"
+            head -n 5 bookmarks.user.yml
+          else 
+            echo "WARNING: bookmarks.user.yml does not exist before pushing!"
+          fi
+          
+          echo "Pushing changes to repository..."
           git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
         env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

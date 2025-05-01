@@ -18,11 +18,12 @@
    git push
    ```
 
-4. GitHub Actions将自动处理书签文件，生成`bookmarks.yml`，并重新构建站点
+4. GitHub Actions将自动处理书签文件，生成`bookmarks.user.yml`，并重新构建站点
 
 ## 注意事项
 
 - 仅支持标准HTML格式的书签文件
 - 每次只会处理目录中最新的一个书签文件
 - 处理完成后，书签文件会被自动清除，以防止重复处理
-- 已导入的书签可以在生成的`bookmarks.yml`文件中查看和编辑 
+- 已导入的书签可以在生成的`bookmarks.user.yml`文件中查看和编辑
+- 系统会优先使用`bookmarks.user.yml`的配置，如果存在`bookmarks.yml`，会自动合并两者的内容（用户配置优先） 

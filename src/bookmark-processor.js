@@ -2,10 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 
-// 书签文件夹路径
-const BOOKMARKS_DIR = path.join(__dirname, '..', 'bookmarks');
-// 输出配置文件路径
-const OUTPUT_FILE = path.join(__dirname, '..', 'bookmarks.yml');
+// 书签文件夹路径 - 使用相对路径
+const BOOKMARKS_DIR = 'bookmarks';
+// 输出配置文件路径 - 使用相对路径
+const OUTPUT_FILE = 'bookmarks.user.yml';
+// 默认书签配置文件路径 - 使用相对路径
+const DEFAULT_BOOKMARKS_FILE = 'bookmarks.yml';
 
 // 图标映射，根据URL关键字匹配合适的图标
 const ICON_MAPPING = {
@@ -191,9 +193,10 @@ function generateBookmarksYaml(bookmarks) {
     
     // 添加注释
     const yamlWithComment = 
-`# 自动生成的书签配置文件 - 请勿手动编辑
+`# 自动生成的书签配置文件 - 用户自定义版本
 # 由bookmark-processor.js生成于 ${new Date().toISOString()}
 # 若要更新，请将新的书签HTML文件放入bookmarks/目录
+# 注意：此文件会覆盖bookmarks.yml中的同名配置
 
 ${yamlString}`;
     
@@ -206,8 +209,8 @@ ${yamlString}`;
 
 // 更新现有config.yml中的导航，添加书签页面
 function updateConfigWithBookmarks() {
-  const configFile = path.join(__dirname, '..', 'config.yml');
-  const userConfigFile = path.join(__dirname, '..', 'config.user.yml');
+  const configFile = 'config.yml';
+  const userConfigFile = 'config.user.yml';
   
   // 优先使用用户配置文件，如果存在
   const targetConfigFile = fs.existsSync(userConfigFile) ? userConfigFile : configFile;
@@ -245,6 +248,10 @@ function updateConfigWithBookmarks() {
 
 // 主函数
 async function main() {
+  console.log('Starting bookmark processing...');
+  console.log(`Current working directory: ${process.cwd()}`);
+  console.log(`Output file will be: ${OUTPUT_FILE} (absolute: ${path.resolve(OUTPUT_FILE)})`);
+  
   // 获取最新的书签文件
   const bookmarkFile = getLatestBookmarkFile();
   if (!bookmarkFile) {
@@ -254,21 +261,67 @@ async function main() {
   
   try {
     // 读取文件内容
+    console.log(`Reading bookmark file: ${bookmarkFile}`);
     const htmlContent = fs.readFileSync(bookmarkFile, 'utf8');
     
     // 解析书签
     const bookmarks = parseBookmarks(htmlContent);
     console.log(`Found ${bookmarks.categories.length} categories with bookmarks`);
+    if (bookmarks.categories.length === 0) {
+      console.error('ERROR: No bookmark categories found in the HTML file. Processing aborted.');
+      return;
+    }
+    console.log('Categories found:');
+    bookmarks.categories.forEach(cat => {
+      console.log(`- ${cat.name}: ${cat.sites.length} sites`);
+    });
     
     // 生成YAML
     const yaml = generateBookmarksYaml(bookmarks);
-    if (yaml) {
+    if (!yaml) {
+      console.error('ERROR: Failed to generate YAML from bookmarks. Processing aborted.');
+      return;
+    }
+    
+    // 显示将要写入的YAML前几行
+    console.log('Generated YAML preview (first 5 lines):');
+    console.log(yaml.split('\n').slice(0, 5).join('\n') + '\n...');
+    
+    try {
+      // 确保目标目录存在
+      const outputDir = path.dirname(OUTPUT_FILE);
+      if (!fs.existsSync(outputDir) && outputDir !== '.') {
+        console.log(`Creating output directory: ${outputDir}`);
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
       // 保存YAML文件
+      console.log(`Writing to: ${OUTPUT_FILE}`);
       fs.writeFileSync(OUTPUT_FILE, yaml, 'utf8');
-      console.log(`Saved bookmarks configuration to ${OUTPUT_FILE}`);
+      
+      // 验证文件是否确实被创建
+      if (fs.existsSync(OUTPUT_FILE)) {
+        const stats = fs.statSync(OUTPUT_FILE);
+        console.log(`Successfully saved bookmarks configuration to ${OUTPUT_FILE}`);
+        console.log(`Verified file exists: ${OUTPUT_FILE}`);
+        console.log(`File size: ${stats.size} bytes`);
+        console.log(`File permissions: ${stats.mode.toString(8)}`);
+        
+        // 列出当前目录内容以确认
+        console.log('Current directory contains:');
+        fs.readdirSync('.').forEach(file => {
+          console.log(`- ${file}`);
+        });
+      } else {
+        console.error(`ERROR: File was not created: ${OUTPUT_FILE}`);
+        process.exit(1);
+      }
       
       // 更新导航
       updateConfigWithBookmarks();
+    } catch (writeError) {
+      console.error(`ERROR writing file ${OUTPUT_FILE}:`, writeError);
+      process.exit(1);
     }
   } catch (error) {
     console.error('Error processing bookmark file:', error);

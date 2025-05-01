@@ -17,40 +17,45 @@ function escapeHtml(unsafe) {
 
 // 读取配置文件
 function loadConfig() {
-    let config = {};
+    let config = null;
     
-    // 读取默认配置
     try {
-        const defaultConfigFile = fs.readFileSync('config.yml', 'utf8');
-        config = yaml.load(defaultConfigFile);
-    } catch (e) {
-        console.error('Error loading default config file:', e);
-        process.exit(1);
-    }
-    
-    // 尝试读取用户配置并合并
-    try {
+        // 优先尝试读取用户配置
         if (fs.existsSync('config.user.yml')) {
             const userConfigFile = fs.readFileSync('config.user.yml', 'utf8');
-            const userConfig = yaml.load(userConfigFile);
-            // 深度合并配置,用户配置优先
-            config = mergeConfigs(config, userConfig);
+            config = yaml.load(userConfigFile);
             console.log('Using user configuration from config.user.yml');
-        } else {
+        } 
+        // 如果没有用户配置，则使用默认配置
+        else {
+            const defaultConfigFile = fs.readFileSync('config.yml', 'utf8');
+            config = yaml.load(defaultConfigFile);
             console.log('No user configuration found, using default config.yml');
         }
     } catch (e) {
-        console.error('Error loading user config file:', e);
-        console.log('Falling back to default configuration');
+        console.error('Error loading configuration file:', e);
+        process.exit(1);
     }
     
-    // 尝试读取书签配置并合并
+    // 尝试读取书签配置
     try {
-        if (fs.existsSync('bookmarks.yml')) {
+        let bookmarksConfig = null;
+        
+        // 优先尝试读取用户书签配置
+        if (fs.existsSync('bookmarks.user.yml')) {
+            const userBookmarksFile = fs.readFileSync('bookmarks.user.yml', 'utf8');
+            bookmarksConfig = yaml.load(userBookmarksFile);
+            console.log('Using user bookmarks configuration from bookmarks.user.yml');
+        }
+        // 如果没有用户书签配置，则尝试读取默认书签配置
+        else if (fs.existsSync('bookmarks.yml')) {
             const bookmarksFile = fs.readFileSync('bookmarks.yml', 'utf8');
-            const bookmarksConfig = yaml.load(bookmarksFile);
-            
-            // 添加书签页面配置
+            bookmarksConfig = yaml.load(bookmarksFile);
+            console.log('Using default bookmarks configuration from bookmarks.yml');
+        }
+        
+        // 添加书签页面配置
+        if (bookmarksConfig) {
             config.bookmarks = bookmarksConfig;
             
             // 确保导航中有书签页面
@@ -63,31 +68,12 @@ function loadConfig() {
                     active: false
                 });
             }
-            
-            console.log('Loaded bookmarks configuration from bookmarks.yml');
         }
     } catch (e) {
         console.error('Error loading bookmarks configuration:', e);
     }
     
     return config;
-}
-
-// 深度合并配置对象
-function mergeConfigs(defaultConfig, userConfig) {
-    if (!userConfig) return defaultConfig;
-    
-    const merged = { ...defaultConfig };
-    
-    for (const key in userConfig) {
-        if (typeof userConfig[key] === 'object' && !Array.isArray(userConfig[key])) {
-            merged[key] = mergeConfigs(defaultConfig[key] || {}, userConfig[key]);
-        } else {
-            merged[key] = userConfig[key];
-        }
-    }
-    
-    return merged;
 }
 
 // 生成导航菜单
