@@ -1,33 +1,26 @@
-# 网站基本信息
 site:
   title: 我的导航
   description: 个人网络导航站
   author: Your Name
-  favicon: favicon.ico  # 网站图标,支持ico、png等格式
-  logo_text: 导航站  # 左侧导航栏Logo文字
-
-# 字体设置
+  favicon: favicon.ico
+  logo_text: 导航站
 fonts:
-  title:  # 标题字体
-    family: "Poppins"  # 可以是Web安全字体或Google Fonts
-    weight: 600  # 字重
-    source: "google"  # google 或 system
-  subtitle:  # 副标题字体（Welcome to My Navigation）
-    family: "Quicksand"
+  title:
+    family: Poppins
+    weight: 600
+    source: google
+  subtitle:
+    family: Quicksand
     weight: 500
-    source: "google"
-  body:  # 正文字体
-    family: "Noto Sans SC"
+    source: google
+  body:
+    family: Noto Sans SC
     weight: 400
-    source: "google"
-
-# 个人信息
+    source: google
 profile:
   title: Hello,
   subtitle: Welcome to My Navigation
   description: 导航菜单
-
-# 导航菜单
 navigation:
   - name: 首页
     icon: fas fa-home
@@ -42,8 +35,10 @@ navigation:
   - name: 朋友
     icon: fas fa-users
     id: friends
-
-# 社交账号
+  - name: 书签
+    icon: fas fa-bookmark
+    id: bookmarks
+    active: false
 social:
   - name: GitHub
     url: https://github.com
@@ -57,8 +52,6 @@ social:
   - name: Steam
     url: https://steam.com
     icon: fab fa-steam
-
-# 首页分类
 categories:
   - name: 常用网站
     icon: fas fa-star
@@ -83,7 +76,6 @@ categories:
         url: https://chat.openai.com
         icon: fas fa-robot
         description: AI智能助手
-
   - name: 学习资源
     icon: fas fa-graduation-cap
     sites:
@@ -103,7 +95,6 @@ categories:
         url: https://leetcode.cn
         icon: fas fa-code
         description: 算法刷题平台
-
   - name: 开发工具
     icon: fas fa-tools
     sites:
@@ -123,7 +114,6 @@ categories:
         url: https://www.docker.com
         icon: fab fa-docker
         description: 容器化平台
-
   - name: 设计资源
     icon: fas fa-palette
     sites:
@@ -143,7 +133,6 @@ categories:
         url: https://www.iconfont.cn
         icon: fas fa-icons
         description: 图标资源库
-
   - name: 在线工具
     icon: fas fa-wrench
     sites:
@@ -163,8 +152,6 @@ categories:
         url: https://carbon.now.sh
         icon: fas fa-code
         description: 代码图片生成器
-
-# 项目页面
 projects:
   title: 我的项目
   subtitle: 这里展示了我的一些个人项目和开源贡献
@@ -195,8 +182,6 @@ projects:
           icon: fab fa-github
           description: 开源项目贡献
           url: "#"
-
-# 文章页面
 articles:
   title: 技术文章
   subtitle: 分享我的技术文章和学习笔记
@@ -250,8 +235,6 @@ articles:
           icon: fab fa-react
           description: React核心机制解析
           url: "#"
-
-# 朋友页面
 friends:
   title: 友情链接
   subtitle: 优秀的博主和朋友们
@@ -275,7 +258,6 @@ friends:
           icon: fas fa-mobile-alt
           description: 移动应用开发专家
           url: "#"
-    
     - name: 技术社区
       icon: fas fa-laptop-code
       sites:
@@ -295,7 +277,6 @@ friends:
           icon: fas fa-comments
           description: 创意工作者社区
           url: https://v2ex.com
-    
     - name: 休闲娱乐
       icon: fas fa-coffee
       sites:
@@ -314,4 +295,4 @@ friends:
         - name: 网易云音乐
           icon: fas fa-music
           description: 音乐平台
-          url: https://music.163.com 
+          url: https://music.163.com

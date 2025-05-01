@@ -44,6 +44,32 @@ function loadConfig() {
         console.log('Falling back to default configuration');
     }
     
+    // 尝试读取书签配置并合并
+    try {
+        if (fs.existsSync('bookmarks.yml')) {
+            const bookmarksFile = fs.readFileSync('bookmarks.yml', 'utf8');
+            const bookmarksConfig = yaml.load(bookmarksFile);
+            
+            // 添加书签页面配置
+            config.bookmarks = bookmarksConfig;
+            
+            // 确保导航中有书签页面
+            const hasBookmarksNav = config.navigation.some(nav => nav.id === 'bookmarks');
+            if (!hasBookmarksNav) {
+                config.navigation.push({
+                    name: '书签',
+                    icon: 'fas fa-bookmark',
+                    id: 'bookmarks',
+                    active: false
+                });
+            }
+            
+            console.log('Loaded bookmarks configuration from bookmarks.yml');
+        }
+    } catch (e) {
+        console.error('Error loading bookmarks configuration:', e);
+    }
+    
     return config;
 }
 
@@ -121,6 +147,16 @@ ${generateCategories(config.categories)}`;
 
 // 生成页面内容
 function generatePageContent(pageId, data) {
+    // 如果是book、marks页面，使用bookmarks配置
+    if (pageId === 'bookmarks' && data) {
+        return `
+                <div class="welcome-section">
+                    <h2>${escapeHtml(data.title)}</h2>
+                    <p class="subtitle">${escapeHtml(data.subtitle)}</p>
+                </div>
+                ${generateCategories(data.categories)}`;
+    }
+    
     return `
                 <div class="welcome-section">
                     <h2>${escapeHtml(data.title)}</h2>
@@ -200,6 +236,42 @@ function generateHTML(config) {
     const fontVariables = generateFontVariables(config);
     const currentYear = new Date().getFullYear();
     
+    // 处理所有页面内容
+    const pageContents = {};
+    
+    // 首页内容
+    pageContents.home = generateHomeContent(config);
+    
+    // 如果配置了项目页面
+    if (config.projects) {
+        pageContents.projects = generatePageContent('projects', config.projects);
+    }
+    
+    // 如果配置了文章页面
+    if (config.articles) {
+        pageContents.articles = generatePageContent('articles', config.articles);
+    }
+    
+    // 如果配置了友链页面
+    if (config.friends) {
+        pageContents.friends = generatePageContent('friends', config.friends);
+    }
+    
+    // 如果配置了书签页面
+    if (config.bookmarks) {
+        pageContents.bookmarks = generatePageContent('bookmarks', config.bookmarks);
+    }
+    
+    // 生成所有页面的HTML
+    const pagesHTML = Object.entries(pageContents).map(([id, content]) => `
+            <!-- ${id}页 -->
+            <div class="page${id === 'home' ? ' active' : ''}" id="${id}">
+${content}
+            </div>`).join('\n');
+    
+    // 生成搜索结果页面
+    const searchResultsHTML = generateSearchResultsPage(config);
+    
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -233,7 +305,7 @@ function generateHTML(config) {
         <!-- 左侧导航 -->
         <nav class="sidebar">
             <div class="logo">
-                <h1>导航站</h1>
+                <h1>${escapeHtml(config.site.logo_text || '导航站')}</h1>
             </div>
             
             <div class="sidebar-content">
@@ -265,31 +337,12 @@ ${generateSocialLinks(config.social)}
                 </div>
             </div>
 
-            <!-- 首页 -->
-            <div class="page active" id="home">
-                <div class="welcome-section">
-                    <h2>${escapeHtml(config.profile.title)}</h2>
-                    <h3>${escapeHtml(config.profile.subtitle)}</h3>
-                    <p class="subtitle">${escapeHtml(config.profile.description)}</p>
-                </div>
-${generateCategories(config.categories)}
+${pagesHTML}
+            
+            <!-- 搜索结果页 -->
+            <div class="page" id="search-results">
+${searchResultsHTML}
             </div>
-
-            <!-- 项目页 -->
-            <div class="page" id="projects">
-${generatePageContent('projects', config.projects)}
-            </div>
-
-            <!-- 文章页 -->
-            <div class="page" id="articles">
-${generatePageContent('articles', config.articles)}
-            </div>
-
-            <!-- 朋友页 -->
-            <div class="page" id="friends">
-${generatePageContent('friends', config.friends)}
-            </div>
-${generateSearchResultsPage(config)}
         </main>
         
         <!-- 主题切换按钮 -->
@@ -362,21 +415,39 @@ function processTemplate(template, config) {
         '{{PROJECTS_CONTENT}}': generatePageContent('projects', config.projects),
         '{{ARTICLES_CONTENT}}': generatePageContent('articles', config.articles),
         '{{FRIENDS_CONTENT}}': generatePageContent('friends', config.friends),
+        '{{BOOKMARKS_CONTENT}}': generatePageContent('bookmarks', config.bookmarks),
         '{{SEARCH_RESULTS}}': generateSearchResultsPage(config)
     };
     
     // 执行替换
     let processedTemplate = template;
     for (const [placeholder, value] of Object.entries(replacements)) {
-        processedTemplate = processedTemplate.replace(placeholder, value);
+        // 使用正则表达式进行全局替换
+        const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        processedTemplate = processedTemplate.replace(regex, value || '');
     }
     
     return processedTemplate;
 }
 
+// 调试函数
+function debugConfig(config) {
+    console.log('==== DEBUG INFO ====');
+    console.log('Navigation items:', config.navigation.map(nav => nav.id));
+    console.log('Has bookmarks config:', !!config.bookmarks);
+    if (config.bookmarks) {
+        console.log('Bookmarks title:', config.bookmarks.title);
+        console.log('Bookmarks categories:', config.bookmarks.categories.length);
+    }
+    console.log('==================');
+}
+
 // 主函数
 function main() {
     const config = loadConfig();
+    
+    // 输出调试信息
+    debugConfig(config);
     
     try {
         // 确保dist目录存在
