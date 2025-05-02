@@ -570,6 +570,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageId = item.getAttribute('data-page');
             if (pageId) {
                 showPage(pageId);
+                
+                // 在移动端视图下点击导航项后自动收起侧边栏
+                if (isMobile() && isSidebarOpen) {
+                    closeAllPanels();
+                }
             }
         });
     });
