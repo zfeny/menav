@@ -1,6 +1,6 @@
 # <img src="assets/favicon.ico" width="48" style="vertical-align: middle;"> MeNav - 个人导航站
 
-一个个人主页/导航静态网站，自动化构建和部署，帮助你整理和展示你的网络收藏/项目
+个人主页/导航静态网站，自动化构建和部署，帮助你整理和展示你的网络收藏/项目
 
 ## 目录
 
