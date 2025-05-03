@@ -59,7 +59,16 @@ function loadModularConfig(dirPath) {
     if (fs.existsSync(siteConfigPath)) {
         try {
             const fileContent = fs.readFileSync(siteConfigPath, 'utf8');
-            config.site = yaml.load(fileContent);
+            const siteConfig = yaml.load(fileContent);
+            
+            // 将site.yml中的内容分配到正确的配置字段
+            config.site = siteConfig;
+            
+            // 提取特殊字段到顶层配置
+            if (siteConfig.fonts) config.fonts = siteConfig.fonts;
+            if (siteConfig.profile) config.profile = siteConfig.profile;
+            if (siteConfig.social) config.social = siteConfig.social;
+            
             console.log(`Loaded site configuration from ${siteConfigPath}`);
         } catch (e) {
             console.error(`Error loading site configuration from ${siteConfigPath}:`, e);
@@ -91,6 +100,11 @@ function loadModularConfig(dirPath) {
                 
                 // 提取文件名（不含扩展名）作为配置键
                 const configKey = path.basename(file, path.extname(file));
+                
+                // 特殊处理home.yml中的categories字段
+                if (configKey === 'home' && fileConfig.categories) {
+                    config.categories = fileConfig.categories;
+                }
                 
                 // 将页面配置添加到主配置对象
                 config[configKey] = fileConfig;
@@ -136,7 +150,30 @@ function loadConfig() {
     } else if (hasDefaultModularConfig) {
         // 3. 其次优先级: config/_default/ 目录
         console.log('Using modular default configuration from config/_default/');
+        
+        // 从模块化默认配置加载
         config = loadModularConfig('config/_default');
+        
+        // 检查并加载home.yml中的categories（如果loadModularConfig未正确处理）
+        const homePath = path.join('config', '_default', 'pages', 'home.yml');
+        if (fs.existsSync(homePath) && (!config.categories || config.categories.length === 0)) {
+            try {
+                const homeContent = fs.readFileSync(homePath, 'utf8');
+                const homeConfig = yaml.load(homeContent);
+                
+                if (homeConfig && homeConfig.categories) {
+                    // 直接设置categories
+                    config.categories = homeConfig.categories;
+                    
+                    // 确保home配置也正确设置
+                    if (!config.home) {
+                        config.home = homeConfig;
+                    }
+                }
+            } catch (e) {
+                console.error(`Error loading home.yml: ${e.message}`);
+            }
+        }
     } else if (hasDefaultLegacyConfig) {
         // 4. 最低优先级: config.yml (传统默认配置)
         console.log('Using legacy default config.yml');
