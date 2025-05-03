@@ -237,7 +237,6 @@ body.loaded .layout {
     visibility: hidden;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 950; /* 调整遮罩层z-index，处于按钮与弹出面板之间 */
-    backdrop-filter: blur(4px);
 }
 
 .overlay.active {
@@ -966,7 +965,6 @@ body .content.expanded {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(4px);
 }
 
 .modal.active {
@@ -1183,7 +1181,6 @@ body .content.expanded {
         left: 0;
         width: 100%;
         padding: 1rem;
-        background-color: var(--bg-color);
         transform: translateY(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 95;

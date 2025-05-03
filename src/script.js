@@ -562,6 +562,10 @@ document.addEventListener('DOMContentLoaded', () => {
             resetSearch();
         } else if (e.key === 'Enter') {
             performSearch(searchInput.value);
+            // 在移动设备上，执行搜索后自动关闭搜索面板
+            if (isMobile() && isSearchOpen) {
+                closeAllPanels();
+            }
         }
     });
 
