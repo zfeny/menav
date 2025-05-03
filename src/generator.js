@@ -228,14 +228,84 @@ function loadConfig() {
 }
 
 // 生成导航菜单
-function generateNavigation(navigation) {
-    return navigation.map(nav => `
-                <a href="#" class="nav-item${nav.active ? ' active' : ''}" data-page="${escapeHtml(nav.id)}">
-                    <div class="icon-container">
-                        <i class="${escapeHtml(nav.icon)}"></i>
-                    </div>
-                    <span class="nav-text">${escapeHtml(nav.name)}</span>
-                </a>`).join('\n');
+function generateNavigation(navigation, config) {
+    return navigation.map(nav => {
+        // 根据页面ID获取对应的子菜单项（分类）
+        let submenuItems = '';
+
+        // 首页页面添加子菜单（分类）
+        if (nav.id === 'home' && Array.isArray(config.categories)) {
+            submenuItems = `
+                <div class="submenu">
+                    ${config.categories.map(category => `
+                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
+                            <i class="${escapeHtml(category.icon)}"></i>
+                            <span>${escapeHtml(category.name)}</span>
+                        </a>
+                    `).join('')}
+                </div>`;
+        }
+        // 书签页面添加子菜单（分类）
+        else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
+            submenuItems = `
+                <div class="submenu">
+                    ${config.bookmarks.categories.map(category => `
+                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
+                            <i class="${escapeHtml(category.icon)}"></i>
+                            <span>${escapeHtml(category.name)}</span>
+                        </a>
+                    `).join('')}
+                </div>`;
+        }
+        // 项目页面添加子菜单
+        else if (nav.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
+            submenuItems = `
+                <div class="submenu">
+                    ${config.projects.categories.map(category => `
+                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
+                            <i class="${escapeHtml(category.icon)}"></i>
+                            <span>${escapeHtml(category.name)}</span>
+                        </a>
+                    `).join('')}
+                </div>`;
+        }
+        // 文章页面添加子菜单
+        else if (nav.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
+            submenuItems = `
+                <div class="submenu">
+                    ${config.articles.categories.map(category => `
+                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
+                            <i class="${escapeHtml(category.icon)}"></i>
+                            <span>${escapeHtml(category.name)}</span>
+                        </a>
+                    `).join('')}
+                </div>`;
+        }
+        // 友链页面添加子菜单
+        else if (nav.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
+            submenuItems = `
+                <div class="submenu">
+                    ${config.friends.categories.map(category => `
+                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
+                            <i class="${escapeHtml(category.icon)}"></i>
+                            <span>${escapeHtml(category.name)}</span>
+                        </a>
+                    `).join('')}
+                </div>`;
+        }
+
+        return `
+                <div class="nav-item-wrapper">
+                    <a href="#" class="nav-item${nav.active ? ' active' : ''}" data-page="${escapeHtml(nav.id)}">
+                        <div class="icon-container">
+                            <i class="${escapeHtml(nav.icon)}"></i>
+                        </div>
+                        <span class="nav-text">${escapeHtml(nav.name)}</span>
+                        ${submenuItems ? '<i class="fas fa-chevron-down submenu-toggle"></i>' : ''}
+                    </a>
+                    ${submenuItems}
+                </div>`;
+    }).join('\n');
 }
 
 // 生成网站卡片HTML
@@ -447,7 +517,7 @@ ${content}
             
             <div class="sidebar-content">
                 <div class="nav-section">
-${generateNavigation(config.navigation)}
+${generateNavigation(config.navigation, config)}
                 </div>
 
                 <div class="nav-section">
@@ -545,7 +615,7 @@ function processTemplate(template, config) {
         '{{SITE_LOGO_TEXT}}': escapeHtml(config.site.logo_text || '导航站'), // 从配置中获取，如果不存在则使用默认值
         '{{GOOGLE_FONTS}}': googleFontsLink,
         '{{{FONT_VARIABLES}}}': fontVariables,
-        '{{NAVIGATION}}': generateNavigation(config.navigation),
+        '{{NAVIGATION}}': generateNavigation(config.navigation, config),
         '{{SOCIAL_LINKS}}': generateSocialLinks(config.social),
         '{{CURRENT_YEAR}}': currentYear,
         '{{HOME_CONTENT}}': generateHomeContent(config),
