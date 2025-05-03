@@ -1,0 +1,29 @@
+title: 我的项目
+subtitle: 一些自部署实例与NAS服务
+categories:
+  - name: 常用
+    icon: fas fa-code
+    sites:
+      - name: Sun-panel
+        icon: fas fa-compass
+        description: 服务器导航面板
+        url: "https://sunpanel.534612.xyz"
+      - name: Todo List
+        icon: fas fa-tasks
+        description: 基于Vue3的待办事项管理器
+        url: "#"
+      - name: 个人博客
+        icon: fas fa-blog
+        description: 使用Hexo搭建的技术博客
+        url: "#"
+  # - name: 开源贡献
+  #   icon: fas fa-code-branch
+  #   sites:
+  #     - name: Project A
+  #       icon: fab fa-github
+  #       description: 开源项目贡献
+  #       url: "#"
+  #     - name: Project B
+  #       icon: fab fa-github
+  #       description: 开源项目贡献
+  #       url: "#" 
