@@ -16,48 +16,76 @@ function escapeHtml(unsafe) {
 }
 
 /**
- * 从文件合并配置到主配置对象
- * @param {Object} config 主配置对象
+ * 加载单个配置文件
  * @param {string} filePath 配置文件路径
+ * @returns {Object|null} 配置对象，如果文件不存在或加载失败则返回null
  */
-function mergeConfigFromFile(config, filePath) {
+function loadSingleConfig(filePath) {
     if (fs.existsSync(filePath)) {
         try {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             const fileConfig = yaml.load(fileContent);
-            
-            // 提取文件名（不含扩展名）作为配置键
-            const configKey = path.basename(filePath, path.extname(filePath));
-            
-            // 如果是site或navigation文件，直接合并到主配置
-            if (configKey === 'site' || configKey === 'navigation') {
-                if (!config[configKey]) config[configKey] = {};
-                deepMerge(config[configKey], fileConfig);
-            } else {
-                // 其他配置直接合并到根级别
-                deepMerge(config, fileConfig);
-            }
-            
-            console.log(`Loaded and merged configuration from ${filePath}`);
+            console.log(`Loaded configuration from ${filePath}`);
+            return fileConfig;
         } catch (e) {
             console.error(`Error loading configuration from ${filePath}:`, e);
+            return null;
         }
     }
+    return null;
 }
 
 /**
- * 加载页面配置目录中的所有配置文件
- * @param {Object} config 主配置对象
- * @param {string} dirPath 页面配置目录路径
+ * 加载模块化配置目录
+ * @param {string} dirPath 配置目录路径
+ * @returns {Object|null} 配置对象，如果目录不存在或加载失败则返回null
  */
-function loadPageConfigs(config, dirPath) {
-    if (fs.existsSync(dirPath)) {
-        const files = fs.readdirSync(dirPath).filter(file => 
+function loadModularConfig(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        return null;
+    }
+
+    const config = {
+        site: {},
+        navigation: [],
+        fonts: {},
+        profile: {},
+        social: [],
+        categories: []
+    };
+
+    // 加载基础配置
+    const siteConfigPath = path.join(dirPath, 'site.yml');
+    if (fs.existsSync(siteConfigPath)) {
+        try {
+            const fileContent = fs.readFileSync(siteConfigPath, 'utf8');
+            config.site = yaml.load(fileContent);
+            console.log(`Loaded site configuration from ${siteConfigPath}`);
+        } catch (e) {
+            console.error(`Error loading site configuration from ${siteConfigPath}:`, e);
+        }
+    }
+
+    const navConfigPath = path.join(dirPath, 'navigation.yml');
+    if (fs.existsSync(navConfigPath)) {
+        try {
+            const fileContent = fs.readFileSync(navConfigPath, 'utf8');
+            config.navigation = yaml.load(fileContent);
+            console.log(`Loaded navigation configuration from ${navConfigPath}`);
+        } catch (e) {
+            console.error(`Error loading navigation configuration from ${navConfigPath}:`, e);
+        }
+    }
+
+    // 加载页面配置
+    const pagesPath = path.join(dirPath, 'pages');
+    if (fs.existsSync(pagesPath)) {
+        const files = fs.readdirSync(pagesPath).filter(file => 
             file.endsWith('.yml') || file.endsWith('.yaml'));
         
         files.forEach(file => {
             try {
-                const filePath = path.join(dirPath, file);
+                const filePath = path.join(pagesPath, file);
                 const fileContent = fs.readFileSync(filePath, 'utf8');
                 const fileConfig = yaml.load(fileContent);
                 
@@ -69,49 +97,12 @@ function loadPageConfigs(config, dirPath) {
                 
                 console.log(`Loaded page configuration from ${filePath}`);
             } catch (e) {
-                console.error(`Error loading page configuration from ${path.join(dirPath, file)}:`, e);
+                console.error(`Error loading page configuration from ${path.join(pagesPath, file)}:`, e);
             }
         });
     }
-}
 
-/**
- * 深度合并两个对象
- * @param {Object} target 目标对象
- * @param {Object} source 源对象
- * @returns {Object} 合并后的对象
- */
-function deepMerge(target, source) {
-    if (!source) return target;
-    
-    for (const key in source) {
-        if (source.hasOwnProperty(key)) {
-            if (typeof source[key] === 'object' && source[key] !== null) {
-                // 确保目标对象有这个属性
-                if (!target[key]) {
-                    if (Array.isArray(source[key])) {
-                        target[key] = [];
-                    } else {
-                        target[key] = {};
-                    }
-                }
-                
-                // 递归合并
-                if (Array.isArray(source[key])) {
-                    // 对于数组，直接替换或添加
-                    target[key] = source[key];
-                } else {
-                    // 对于对象，递归合并
-                    deepMerge(target[key], source[key]);
-                }
-            } else {
-                // 对于基本类型，直接替换
-                target[key] = source[key];
-            }
-        }
-    }
-    
-    return target;
+    return config;
 }
 
 // 读取配置文件
@@ -126,54 +117,44 @@ function loadConfig() {
         categories: []
     };
     
-    // 处理配置目录结构，按照优先级从低到高加载
-    // 4. 最低优先级: config.yml (传统默认配置)
-    if (fs.existsSync('config.yml')) {
-        const defaultConfigFile = fs.readFileSync('config.yml', 'utf8');
-        const defaultConfig = yaml.load(defaultConfigFile);
-        deepMerge(config, defaultConfig);
-        console.log('Loaded legacy default config.yml');
-    }
+    // 检查所有可能的配置来源是否存在
+    const hasUserModularConfig = fs.existsSync('config/user');
+    const hasUserLegacyConfig = fs.existsSync('config.user.yml');
+    const hasDefaultModularConfig = fs.existsSync('config/_default');
+    const hasDefaultLegacyConfig = fs.existsSync('config.yml');
     
-    // 3. 其次优先级: config/_default/ 目录
-    if (fs.existsSync('config/_default')) {
-        console.log('Loading modular default configuration from config/_default/');
-        
-        // 加载基础配置
-        mergeConfigFromFile(config, 'config/_default/site.yml');
-        mergeConfigFromFile(config, 'config/_default/navigation.yml');
-        
-        // 加载页面配置
-        if (fs.existsSync('config/_default/pages')) {
-            loadPageConfigs(config, 'config/_default/pages');
-        }
-    }
-    
-    // 2. 次高优先级: config.user.yml (传统用户配置)
-    if (fs.existsSync('config.user.yml')) {
+    // 根据优先级顺序选择最高优先级的配置
+    if (hasUserModularConfig) {
+        // 1. 最高优先级: config/user/ 目录
+        console.log('Using modular user configuration from config/user/ (highest priority)');
+        config = loadModularConfig('config/user');
+    } else if (hasUserLegacyConfig) {
+        // 2. 次高优先级: config.user.yml (传统用户配置)
+        console.log('Using legacy user configuration from config.user.yml');
         const userConfigFile = fs.readFileSync('config.user.yml', 'utf8');
-        const userConfig = yaml.load(userConfigFile);
-        
-        // 深度合并配置
-        deepMerge(config, userConfig);
-        console.log('Merged legacy user configuration from config.user.yml');
+        config = yaml.load(userConfigFile);
+    } else if (hasDefaultModularConfig) {
+        // 3. 其次优先级: config/_default/ 目录
+        console.log('Using modular default configuration from config/_default/');
+        config = loadModularConfig('config/_default');
+    } else if (hasDefaultLegacyConfig) {
+        // 4. 最低优先级: config.yml (传统默认配置)
+        console.log('Using legacy default config.yml');
+        const defaultConfigFile = fs.readFileSync('config.yml', 'utf8');
+        config = yaml.load(defaultConfigFile);
+    } else {
+        console.log('No configuration found, using default empty config');
     }
     
-    // 1. 最高优先级: config/user/ 目录
-    if (fs.existsSync('config/user')) {
-        console.log('Loading modular user configuration from config/user/ (highest priority)');
-        
-        // 覆盖基础配置
-        mergeConfigFromFile(config, 'config/user/site.yml');
-        mergeConfigFromFile(config, 'config/user/navigation.yml');
-        
-        // 覆盖页面配置
-        if (fs.existsSync('config/user/pages')) {
-            loadPageConfigs(config, 'config/user/pages');
-        }
-    }
+    // 确保配置具有必要的结构
+    config.site = config.site || {};
+    config.navigation = config.navigation || [];
+    config.fonts = config.fonts || {};
+    config.profile = config.profile || {};
+    config.social = config.social || [];
+    config.categories = config.categories || [];
     
-    // 处理书签文件（保持现有功能）
+    // 处理书签文件（保持现有功能，但使用新逻辑）
     try {
         let bookmarksConfig = null;
         let bookmarksSource = null;
@@ -310,18 +291,30 @@ function generateNavigation(navigation, config) {
 
 // 生成网站卡片HTML
 function generateSiteCards(sites) {
+    if (!sites || !Array.isArray(sites) || sites.length === 0) {
+        return `<p class="empty-sites">暂无网站</p>`;
+    }
+    
     return sites.map(site => `
-                        <a href="${escapeHtml(site.url)}" class="site-card" title="${escapeHtml(site.name)} - ${escapeHtml(site.description)}">
-                            <i class="${escapeHtml(site.icon)}"></i>
-                            <h3>${escapeHtml(site.name)}</h3>
-                            <p>${escapeHtml(site.description)}</p>
+                        <a href="${escapeHtml(site.url)}" class="site-card" title="${escapeHtml(site.name)} - ${escapeHtml(site.description || '')}">
+                            <i class="${escapeHtml(site.icon || 'fas fa-link')}"></i>
+                            <h3>${escapeHtml(site.name || '未命名站点')}</h3>
+                            <p>${escapeHtml(site.description || '')}</p>
                         </a>`).join('\n');
 }
 
-// 生成分类HTML
+// 生成分类板块
 function generateCategories(categories) {
-    return categories.map(category => `
+    if (!categories || !Array.isArray(categories) || categories.length === 0) {
+        return `
                 <section class="category">
+                    <h2><i class="fas fa-info-circle"></i> 暂无分类</h2>
+                    <p>请在配置文件中添加分类</p>
+                </section>`;
+    }
+    
+    return categories.map(category => `
+                <section class="category" id="${escapeHtml(category.name)}">
                     <h2><i class="${escapeHtml(category.icon)}"></i> ${escapeHtml(category.name)}</h2>
                     <div class="sites-grid">
                         ${generateSiteCards(category.sites)}
@@ -331,45 +324,66 @@ function generateCategories(categories) {
 
 // 生成社交链接HTML
 function generateSocialLinks(social) {
+    if (!social || !Array.isArray(social) || social.length === 0) {
+        return '';
+    }
+    
     return social.map(link => `
                 <a href="${escapeHtml(link.url)}" class="nav-item" target="_blank">
                     <div class="icon-container">
-                        <i class="${escapeHtml(link.icon)}"></i>
+                        <i class="${escapeHtml(link.icon || 'fas fa-link')}"></i>
                     </div>
-                    <span class="nav-text">${escapeHtml(link.name)}</span>
+                    <span class="nav-text">${escapeHtml(link.name || '社交链接')}</span>
                     <i class="fas fa-external-link-alt external-icon"></i>
                 </a>`).join('\n');
 }
 
 // 生成欢迎区域和首页内容
 function generateHomeContent(config) {
+    const profile = config.profile || {};
+    
     return `
                 <div class="welcome-section">
-                    <h2>${escapeHtml(config.profile.title)}</h2>
-                    <h3>${escapeHtml(config.profile.subtitle)}</h3>
-                    <p class="subtitle">${escapeHtml(config.profile.description)}</p>
+                    <h2>${escapeHtml(profile.title || '欢迎使用')}</h2>
+                    <h3>${escapeHtml(profile.subtitle || '个人导航站')}</h3>
+                    <p class="subtitle">${escapeHtml(profile.description || '快速访问您的常用网站')}</p>
                 </div>
 ${generateCategories(config.categories)}`;
 }
 
 // 生成页面内容
 function generatePageContent(pageId, data) {
-    // 如果是book、marks页面，使用bookmarks配置
-    if (pageId === 'bookmarks' && data) {
+    // 确保数据对象存在且有必要的字段
+    if (!data) {
+        console.error(`Missing data for page: ${pageId}`);
         return `
                 <div class="welcome-section">
-                    <h2>${escapeHtml(data.title)}</h2>
-                    <p class="subtitle">${escapeHtml(data.subtitle)}</p>
+                    <h2>页面未配置</h2>
+                    <p class="subtitle">请配置 ${pageId} 页面</p>
+                </div>`;
+    }
+    
+    // 设置默认值
+    const title = data.title || `${pageId} 页面`;
+    const subtitle = data.subtitle || '';
+    const categories = data.categories || [];
+    
+    // 如果是书签页面，使用bookmarks配置
+    if (pageId === 'bookmarks') {
+        return `
+                <div class="welcome-section">
+                    <h2>${escapeHtml(title)}</h2>
+                    <p class="subtitle">${escapeHtml(subtitle)}</p>
                 </div>
-                ${generateCategories(data.categories)}`;
+                ${generateCategories(categories)}`;
     }
     
     return `
                 <div class="welcome-section">
-                    <h2>${escapeHtml(data.title)}</h2>
-                    <p class="subtitle">${escapeHtml(data.subtitle)}</p>
+                    <h2>${escapeHtml(title)}</h2>
+                    <p class="subtitle">${escapeHtml(subtitle)}</p>
                 </div>
-                ${generateCategories(data.categories)}`;
+                ${generateCategories(categories)}`;
 }
 
 // 生成搜索结果页面
