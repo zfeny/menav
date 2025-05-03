@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isSearchOpen = false;
     let isLightTheme = false; // 主题状态
     let isSidebarCollapsed = false; // 侧边栏折叠状态
+    let pages; // 页面元素的全局引用
     
     // 搜索索引，用于提高搜索效率
     let searchIndex = {
@@ -135,7 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             // 为每个页面创建索引
-            const pages = document.querySelectorAll('.page');
+            if (!pages) {
+                pages = document.querySelectorAll('.page');
+            }
+            
             pages.forEach(page => {
                 if (page.id === 'search-results') return;
                 
@@ -239,7 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 使用 RAF 确保动画流畅
         requestAnimationFrame(() => {
-            const pages = document.querySelectorAll('.page');
+            if (!pages) {
+                pages = document.querySelectorAll('.page');
+            }
+            
             pages.forEach(page => {
                 const shouldBeActive = page.id === pageId;
                 if (shouldBeActive !== page.classList.contains('active')) {
@@ -582,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const navItems = document.querySelectorAll('.nav-item');
         const navItemWrappers = document.querySelectorAll('.nav-item-wrapper');
         const submenuItems = document.querySelectorAll('.submenu-item');
-        const pages = document.querySelectorAll('.page');
+        pages = document.querySelectorAll('.page');
         
         // 初始化主题
         initTheme();
