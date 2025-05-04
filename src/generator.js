@@ -227,16 +227,7 @@ function loadConfig() {
             config.bookmarks = bookmarksConfig;
             console.log(`Using bookmarks configuration from ${bookmarksSource}`);
             
-            // 确保导航中有书签页面
-            const hasBookmarksNav = config.navigation.some(nav => nav.id === 'bookmarks');
-            if (!hasBookmarksNav) {
-                config.navigation.push({
-                    name: '书签',
-                    icon: 'fas fa-bookmark',
-                    id: 'bookmarks',
-                    active: false
-                });
-            }
+            // 移除自动添加书签页面到导航的逻辑
         }
     } catch (e) {
         console.error('Error loading bookmarks configuration:', e);
