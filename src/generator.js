@@ -1,6 +1,113 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
 const path = require('path');
+const Handlebars = require('handlebars');
+
+// 注册Handlebars实例和辅助函数
+const handlebars = Handlebars.create();
+
+// 加载和注册Handlebars模板的函数
+function loadHandlebarsTemplates() {
+    const templatesDir = path.join(process.cwd(), 'templates');
+    
+    // 检查基本模板目录是否存在
+    if (!fs.existsSync(templatesDir)) {
+        console.warn('Templates directory not found. Using fallback HTML generation.');
+        return false;
+    }
+    
+    // 加载布局模板
+    const layoutsDir = path.join(templatesDir, 'layouts');
+    if (fs.existsSync(layoutsDir)) {
+        fs.readdirSync(layoutsDir).forEach(file => {
+            if (file.endsWith('.hbs')) {
+                const layoutName = path.basename(file, '.hbs');
+                const layoutPath = path.join(layoutsDir, file);
+                const layoutContent = fs.readFileSync(layoutPath, 'utf8');
+                handlebars.registerPartial(layoutName, layoutContent);
+                console.log(`Registered layout template: ${layoutName}`);
+            }
+        });
+    }
+    
+    // 加载组件模板
+    const componentsDir = path.join(templatesDir, 'components');
+    if (fs.existsSync(componentsDir)) {
+        fs.readdirSync(componentsDir).forEach(file => {
+            if (file.endsWith('.hbs')) {
+                const componentName = path.basename(file, '.hbs');
+                const componentPath = path.join(componentsDir, file);
+                const componentContent = fs.readFileSync(componentPath, 'utf8');
+                handlebars.registerPartial(componentName, componentContent);
+                console.log(`Registered component template: ${componentName}`);
+            }
+        });
+    }
+    
+    // 识别并注册默认布局模板
+    const defaultLayoutPath = path.join(layoutsDir, 'default.hbs');
+    if (fs.existsSync(defaultLayoutPath)) {
+        console.log('Default layout template found and registered.');
+        return true;
+    } else {
+        console.warn('Default layout template not found. Using fallback HTML generation.');
+        return false;
+    }
+}
+
+// 渲染Handlebars模板函数
+function renderTemplate(templateName, data, useLayout = true) {
+    const templatePath = path.join(process.cwd(), 'templates', 'pages', `${templateName}.hbs`);
+    
+    // 检查模板是否存在
+    if (!fs.existsSync(templatePath)) {
+        console.warn(`Template ${templateName}.hbs not found. Using fallback HTML generation.`);
+        return null;
+    }
+    
+    try {
+        const templateContent = fs.readFileSync(templatePath, 'utf8');
+        const template = handlebars.compile(templateContent);
+        
+        // 渲染页面内容
+        const pageContent = template(data);
+        
+        // 如果不使用布局或者默认布局不存在，直接返回页面内容
+        if (!useLayout) {
+            return pageContent;
+        }
+        
+        // 使用布局模板
+        const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
+        if (fs.existsSync(defaultLayoutPath)) {
+            try {
+                // 准备布局数据，包含页面内容
+                const layoutData = {
+                    ...data,
+                    body: pageContent
+                };
+                
+                // 加载默认布局模板
+                const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
+                const layoutTemplate = handlebars.compile(layoutContent);
+                
+                // 渲染完整页面
+                return layoutTemplate(layoutData);
+            } catch (layoutError) {
+                console.error(`Error rendering layout for ${templateName}:`, layoutError);
+                // 如果布局渲染失败，尝试返回页面内容
+                return pageContent;
+            }
+        } else {
+            // 如果找不到布局模板，返回页面内容
+            console.warn('Default layout template not found. Returning page content only.');
+            return pageContent;
+        }
+    } catch (error) {
+        console.error(`Error rendering template ${templateName}:`, error);
+        return null;
+    }
+}
 
 // HTML转义函数，防止XSS攻击
 function escapeHtml(unsafe) {
@@ -644,43 +751,72 @@ function processTemplate(template, config) {
     const googleFontsLink = generateGoogleFontsLink(config);
     const fontVariables = generateFontVariables(config);
     
-    // 生成所有页面的HTML
-    let allPagesHTML = '';
-    
-    // 确保按照导航顺序生成页面
-    if (config.navigation && Array.isArray(config.navigation)) {
-        // 按照导航中的顺序生成页面
-        config.navigation.forEach(navItem => {
-            const pageId = navItem.id;
+    // 如果Handlebars模板系统可用，优先使用Handlebars渲染
+    const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
+    if (fs.existsSync(defaultLayoutPath)) {
+        try {
+            // 准备导航数据，添加submenu字段
+            const navigationData = config.navigation.map(nav => {
+                const navItem = { ...nav };
+                
+                // 根据页面ID获取对应的子菜单项（分类）
+                if (nav.id === 'home' && Array.isArray(config.categories)) {
+                    navItem.submenu = config.categories;
+                }
+                // 书签页面添加子菜单（分类）
+                else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
+                    navItem.submenu = config.bookmarks.categories;
+                }
+                // 项目页面添加子菜单
+                else if (nav.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
+                    navItem.submenu = config.projects.categories;
+                }
+                // 文章页面添加子菜单
+                else if (nav.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
+                    navItem.submenu = config.articles.categories;
+                }
+                // 友链页面添加子菜单
+                else if (nav.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
+                    navItem.submenu = config.friends.categories;
+                }
+                // 通用处理：任意自定义页面的子菜单生成
+                else if (config[nav.id] && config[nav.id].categories && Array.isArray(config[nav.id].categories)) {
+                    navItem.submenu = config[nav.id].categories;
+                }
+                
+                return navItem;
+            });
             
-            // 跳过搜索结果页
-            if (pageId === 'search-results') {
-                return;
-            }
+            // 准备模板数据
+            const templateData = {
+                site: config.site,
+                navigation: generateNavigation(config.navigation, config),
+                navigationData: navigationData,
+                social: config.social,
+                categories: config.categories,
+                profile: config.profile,
+                googleFontsLink: googleFontsLink,
+                fontVariables: fontVariables,
+                currentYear: currentYear,
+                socialLinks: generateSocialLinks(config.social),
+                searchResults: generateSearchResultsPage(config)
+            };
             
-            let pageContent = '';
-            let isActive = pageId === 'home' ? ' active' : '';
+            // 加载默认布局模板
+            const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
+            const layoutTemplate = handlebars.compile(layoutContent);
             
-            // 根据页面ID生成对应内容
-            if (pageId === 'home') {
-                pageContent = generateHomeContent(config);
-            } else if (config[pageId]) {
-                pageContent = generatePageContent(pageId, config[pageId]);
-            } else {
-                pageContent = `<div class="welcome-section">
-                    <h2>页面未配置</h2>
-                    <p class="subtitle">请配置 ${pageId} 页面</p>
-                </div>`;
-            }
-            
-            // 添加页面HTML
-            allPagesHTML += `
-            <!-- ${pageId}页 -->
-            <div class="page${isActive}" id="${pageId}">
-${pageContent}
-            </div>`;
-        });
+            // 渲染模板
+            return layoutTemplate(templateData);
+        } catch (error) {
+            console.error('Error using Handlebars template:', error);
+            console.log('Falling back to placeholder replacement method.');
+            // 出错时回退到原始占位符替换方法
+        }
     }
+    
+    // 生成所有页面的HTML
+    let allPagesHTML = generateAllPagesHTML(config);
     
     // 创建替换映射
     const replacements = {
@@ -704,6 +840,96 @@ ${pageContent}
     }
     
     return processedTemplate;
+}
+
+// 生成所有页面的HTML
+function generateAllPagesHTML(config) {
+    let allPagesHTML = '';
+    
+    // 准备Handlebars渲染所需的通用数据
+    const templateData = {
+        site: config.site,
+        navigation: config.navigation,
+        navigationData: config.navigation,
+        social: config.social,
+        categories: config.categories,
+        profile: config.profile,
+        googleFontsLink: generateGoogleFontsLink(config),
+        fontVariables: generateFontVariables(config),
+        currentYear: new Date().getFullYear(),
+        socialLinks: generateSocialLinks(config.social),
+        searchResults: generateSearchResultsPage(config)
+    };
+
+    // 确保按照导航顺序生成页面
+    if (config.navigation && Array.isArray(config.navigation)) {
+        // 按照导航中的顺序生成页面
+        config.navigation.forEach(navItem => {
+            const pageId = navItem.id;
+            
+            // 跳过搜索结果页
+            if (pageId === 'search-results') {
+                return;
+            }
+            
+            let pageContent = '';
+            let isActive = pageId === 'home' ? ' active' : '';
+            
+            // 首先尝试使用模板渲染
+            const pageTemplatePath = path.join(process.cwd(), 'templates', 'pages', `${pageId}.hbs`);
+            if (fs.existsSync(pageTemplatePath)) {
+                // 准备页面特定数据
+                const pageTemplateData = { ...templateData };
+                
+                // 添加页面特定数据
+                if (pageId === 'home') {
+                    // home页面不需要额外数据，已经包含了categories
+                } else if (config[pageId]) {
+                    // 其他页面可能有自己的配置
+                    Object.assign(pageTemplateData, config[pageId]);
+                    if (config[pageId].categories) {
+                        pageTemplateData.categories = config[pageId].categories;
+                    }
+                }
+                
+                try {
+                    // 使用Handlebars直接编译模板（不使用布局）
+                    const templateContent = fs.readFileSync(pageTemplatePath, 'utf8');
+                    const template = handlebars.compile(templateContent);
+                    pageContent = template(pageTemplateData);
+                    console.log(`Rendered ${pageId} page using Handlebars template.`);
+                } catch (error) {
+                    console.error(`Error rendering ${pageId} template:`, error);
+                    // 回退到原始生成逻辑
+                    pageContent = null;
+                }
+            }
+            
+            // 如果模板渲染失败或模板不存在，使用原始生成逻辑
+            if (!pageContent) {
+                // 根据页面ID生成对应内容
+                if (pageId === 'home') {
+                    pageContent = generateHomeContent(config);
+                } else if (config[pageId]) {
+                    pageContent = generatePageContent(pageId, config[pageId]);
+                } else {
+                    pageContent = `<div class="welcome-section">
+                    <h2>页面未配置</h2>
+                    <p class="subtitle">请配置 ${pageId} 页面</p>
+                </div>`;
+                }
+            }
+            
+            // 添加页面HTML
+            allPagesHTML += `
+            <!-- ${pageId}页 -->
+            <div class="page${isActive}" id="${pageId}">
+${pageContent}
+            </div>`;
+        });
+    }
+    
+    return allPagesHTML;
 }
 
 // 调试函数
@@ -731,19 +957,64 @@ function main() {
             fs.mkdirSync('dist', { recursive: true });
         }
         
-        // 读取模板文件
-        const templatePath = 'templates/index.html';
+        // 初始化Handlebars模板系统
+        const handlebarsAvailable = loadHandlebarsTemplates();
+        
+        // 准备Handlebars渲染所需的通用数据
+        const templateData = {
+            site: config.site,
+            navigation: config.navigation,
+            navigationData: config.navigation,
+            social: config.social,
+            categories: config.categories,
+            profile: config.profile,
+            googleFontsLink: generateGoogleFontsLink(config),
+            fontVariables: generateFontVariables(config),
+            currentYear: new Date().getFullYear(),
+            socialLinks: generateSocialLinks(config.social),
+            searchResults: generateSearchResultsPage(config)
+        };
+        
         let htmlContent = '';
         
-        if (fs.existsSync(templatePath)) {
-            // 读取模板并处理
-            const template = fs.readFileSync(templatePath, 'utf8');
-            htmlContent = processTemplate(template, config);
-            console.log(`Using template from ${templatePath} and injecting content`);
+        // 尝试使用Handlebars模板渲染
+        if (handlebarsAvailable) {
+            console.log('Handlebars templates are available.');
+            
+            // 渲染逻辑：先尝试使用页面模板和默认布局渲染
+            const renderedContent = renderTemplate('home', templateData);
+            
+            if (renderedContent) {
+                // 使用模板成功渲染
+                htmlContent = renderedContent;
+                console.log('Successfully rendered using Handlebars templates.');
+            } else {
+                // 模板渲染失败，回退到传统模板处理
+                console.log('Failed to render with Handlebars templates, using traditional template processing.');
+                
+                const templatePath = 'templates/index.html';
+                if (fs.existsSync(templatePath)) {
+                    const template = fs.readFileSync(templatePath, 'utf8');
+                    htmlContent = processTemplate(template, config);
+                } else {
+                    // 如果没有任何模板，使用纯生成的HTML
+                    htmlContent = generateHTML(config);
+                    console.log('No template files found, using generated HTML.');
+                }
+            }
         } else {
-            // 如果没有模板文件，使用生成的HTML
-            htmlContent = generateHTML(config);
-            console.log('No template file found, using generated HTML');
+            // Handlebars不可用，使用传统模板处理
+            console.log('Handlebars templates are not available, using traditional template processing.');
+            
+            const templatePath = 'templates/index.html';
+            if (fs.existsSync(templatePath)) {
+                const template = fs.readFileSync(templatePath, 'utf8');
+                htmlContent = processTemplate(template, config);
+            } else {
+                // 如果没有任何模板，使用纯生成的HTML
+                htmlContent = generateHTML(config);
+                console.log('No template files found, using generated HTML.');
+            }
         }
         
         // 生成HTML
@@ -766,5 +1037,8 @@ module.exports = {
   generateHTML,
   copyStaticFiles,
   generateNavigation,
-  generateCategories
+  generateCategories,
+  loadHandlebarsTemplates,
+  renderTemplate,
+  generateAllPagesHTML
 };
