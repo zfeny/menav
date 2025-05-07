@@ -1,6 +1,6 @@
 {{#each this}}
 <div class="nav-item-wrapper">
-    <a href="#" class="nav-item{{#if active}} active{{/if}}" data-page="{{id}}">
+    <a href="#" class="nav-item{{#if isActive}} active{{/if}}{{#if active}} active{{/if}}" data-page="{{id}}">
         <div class="icon-container">
             <i class="{{icon}}"></i>
         </div>
