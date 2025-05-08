@@ -1,0 +1,69 @@
+name: Sync Fork with Upstream
+
+on:
+  schedule:
+    # 你可以自定义cron表达式，这里是每天凌晨3点执行一次
+    # Cron语法参考: https://crontab.guru/
+    - cron: '0 3 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync_with_upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Fork
+        uses: actions/checkout@v4
+        with:
+          # 如果你的默认分支不是main/master，请修改这里
+          # 同时，需要确保这个分支是你希望从上游同步更新的分支
+          # 使用 personal access token (PAT) 而不是 GITHUB_TOKEN
+          # 因为 GITHUB_TOKEN 的权限不足以推送到你的仓库以触发其他 workflows (如果需要的话)
+          # 或者如果你想允许 workflow 修改受保护的分支
+          token: ${{ secrets.PAT_FOR_SYNC }} # 非常重要！看下面的解释
+          # 如果你的fork不是直接从上游仓库fork的，或者你想强制拉取最新代码并覆盖本地更改
+          # 可以考虑添加 fetch-depth: 0 来获取所有历史记录，但通常不需要
+          # fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Add Upstream Remote
+        run: |
+          # 把 YOUR_UPSTREAM_REPO_URL 替换成真正的上游仓库地址
+          # 例如: https://github.com/upstream_owner/upstream_repo.git
+          git remote add upstream https://github.com/rbetree/menav
+
+      - name: Fetch Upstream
+        run: git fetch upstream
+
+      - name: Merge Upstream Changes
+        run: |
+          # 假定你的fork中希望同步的分支是 main
+          # 并且上游仓库你希望同步的分支也是 main
+          # 如果分支名称不同，请修改下面的 'main' 和 'upstream/main'
+          # 例如，如果你的分支是 'develop'，上游是 'master'，那就是 'git merge upstream/master' 到 'develop'
+          git checkout main
+          # 对于大多数情况，直接 merge 就好
+          # 如果你希望强制覆盖你的本地分支以匹配上游（危险操作，会丢失本地未推送的更改）：
+          # git reset --hard upstream/main
+          # git push origin main --force
+          #
+          # 常规合并：
+          git merge upstream/main --no-edit # --no-edit 避免在CI环境中卡住等待编辑commit message
+                                          # 如果有冲突，这里会失败，你需要手动解决
+          # 如果你希望rebase而不是merge（保持更线性的历史记录）：
+          # git rebase upstream/main
+          # 如果遇到冲突，rebase会暂停，你需要手动解决冲突并 git rebase --continue
+
+      - name: Push Changes
+        run: |
+          # 同样，确保 'main' 是你当前分支的正确名称
+          git push origin main
+        # 如果前面的 merge 操作可能导致没有新的 commit (例如本地已经最新)，
+        # git push 可能会因为 "everything up-to-date" 而返回非0退出码，导致 workflow 失败。
+        # 可以添加 continue-on-error: true 来忽略这种情况，但这会掩盖真正的 push 失败。
+        # 一个更稳妥的方式是检查是否有新的 commit 需要推送。
+        # 但对于简单的同步，通常直接推送，如果有冲突前面 merge 就会失败。
+        # continue-on-error: true # 谨慎使用
