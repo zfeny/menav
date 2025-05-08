@@ -28,7 +28,6 @@ function loadHandlebarsTemplates() {
                 const layoutPath = path.join(layoutsDir, file);
                 const layoutContent = fs.readFileSync(layoutPath, 'utf8');
                 handlebars.registerPartial(layoutName, layoutContent);
-                console.log(`Registered layout template: ${layoutName}`);
             }
         });
     } else {
@@ -44,21 +43,43 @@ function loadHandlebarsTemplates() {
                 const componentPath = path.join(componentsDir, file);
                 const componentContent = fs.readFileSync(componentPath, 'utf8');
                 handlebars.registerPartial(componentName, componentContent);
-                console.log(`Registered component template: ${componentName}`);
             }
         });
     } else {
         throw new Error('Components directory not found. Cannot proceed without component templates.');
     }
     
-    // 识别并注册默认布局模板
+    // 识别并检查默认布局模板是否存在
     const defaultLayoutPath = path.join(layoutsDir, 'default.hbs');
-    if (fs.existsSync(defaultLayoutPath)) {
-        console.log('Default layout template found and registered.');
-        return true;
-    } else {
+    if (!fs.existsSync(defaultLayoutPath)) {
         throw new Error('Default layout template not found. Cannot proceed without default layout.');
     }
+}
+
+/**
+ * 获取默认布局模板
+ * @returns {Object} 包含模板路径和编译的模板函数
+ */
+function getDefaultLayoutTemplate() {
+  const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
+  
+  // 检查默认布局模板是否存在
+  if (!fs.existsSync(defaultLayoutPath)) {
+    throw new Error('Default layout template not found. Cannot proceed without default layout.');
+  }
+  
+  try {
+    // 读取布局内容并编译模板
+    const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
+    const layoutTemplate = handlebars.compile(layoutContent);
+    
+    return {
+      path: defaultLayoutPath,
+      template: layoutTemplate
+    };
+  } catch (error) {
+    throw new Error(`Error loading default layout template: ${error.message}`);
+  }
 }
 
 // 渲染Handlebars模板函数
@@ -82,22 +103,15 @@ function renderTemplate(templateName, data, useLayout = true) {
             return pageContent;
         }
         
-        // 使用布局模板
-        const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
-        if (!fs.existsSync(defaultLayoutPath)) {
-            throw new Error('Default layout template not found. Cannot proceed without layout.');
-        }
-        
         try {
+            // 使用辅助函数获取默认布局模板
+            const { template: layoutTemplate } = getDefaultLayoutTemplate();
+            
             // 准备布局数据，包含页面内容
             const layoutData = {
                 ...data,
                 body: pageContent
             };
-            
-            // 加载默认布局模板
-            const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
-            const layoutTemplate = handlebars.compile(layoutContent);
             
             // 渲染完整页面
             return layoutTemplate(layoutData);
@@ -123,23 +137,31 @@ function escapeHtml(unsafe) {
 }
 
 /**
- * 加载单个配置文件
+ * 统一处理配置文件加载错误
+ * @param {string} filePath 配置文件路径
+ * @param {Error} error 错误对象
+ */
+function handleConfigLoadError(filePath, error) {
+  console.error(`Error loading configuration from ${filePath}:`, error);
+}
+
+/**
+ * 安全地加载YAML配置文件
  * @param {string} filePath 配置文件路径
  * @returns {Object|null} 配置对象，如果文件不存在或加载失败则返回null
  */
-function loadSingleConfig(filePath) {
-    if (fs.existsSync(filePath)) {
-        try {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            const fileConfig = yaml.load(fileContent);
-            console.log(`Loaded configuration from ${filePath}`);
-            return fileConfig;
-        } catch (e) {
-            console.error(`Error loading configuration from ${filePath}:`, e);
-            return null;
-        }
-    }
+function safeLoadYamlConfig(filePath) {
+  if (!fs.existsSync(filePath)) {
     return null;
+  }
+  
+  try {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    return yaml.load(fileContent);
+  } catch (error) {
+    handleConfigLoadError(filePath, error);
+    return null;
+  }
 }
 
 /**
@@ -163,34 +185,22 @@ function loadModularConfig(dirPath) {
 
     // 加载基础配置
     const siteConfigPath = path.join(dirPath, 'site.yml');
-    if (fs.existsSync(siteConfigPath)) {
-        try {
-            const fileContent = fs.readFileSync(siteConfigPath, 'utf8');
-            const siteConfig = yaml.load(fileContent);
-            
-            // 将site.yml中的内容分配到正确的配置字段
-            config.site = siteConfig;
-            
-            // 提取特殊字段到顶层配置
-            if (siteConfig.fonts) config.fonts = siteConfig.fonts;
-            if (siteConfig.profile) config.profile = siteConfig.profile;
-            if (siteConfig.social) config.social = siteConfig.social;
-            
-            console.log(`Loaded site configuration from ${siteConfigPath}`);
-        } catch (e) {
-            console.error(`Error loading site configuration from ${siteConfigPath}:`, e);
-        }
+    const siteConfig = safeLoadYamlConfig(siteConfigPath);
+    if (siteConfig) {
+        // 将site.yml中的内容分配到正确的配置字段
+        config.site = siteConfig;
+        
+        // 提取特殊字段到顶层配置
+        if (siteConfig.fonts) config.fonts = siteConfig.fonts;
+        if (siteConfig.profile) config.profile = siteConfig.profile;
+        if (siteConfig.social) config.social = siteConfig.social;
     }
 
+    // 加载导航配置
     const navConfigPath = path.join(dirPath, 'navigation.yml');
-    if (fs.existsSync(navConfigPath)) {
-        try {
-            const fileContent = fs.readFileSync(navConfigPath, 'utf8');
-            config.navigation = yaml.load(fileContent);
-            console.log(`Loaded navigation configuration from ${navConfigPath}`);
-        } catch (e) {
-            console.error(`Error loading navigation configuration from ${navConfigPath}:`, e);
-        }
+    const navConfig = safeLoadYamlConfig(navConfigPath);
+    if (navConfig) {
+        config.navigation = navConfig;
     }
 
     // 加载页面配置
@@ -200,11 +210,10 @@ function loadModularConfig(dirPath) {
             file.endsWith('.yml') || file.endsWith('.yaml'));
         
         files.forEach(file => {
-            try {
-                const filePath = path.join(pagesPath, file);
-                const fileContent = fs.readFileSync(filePath, 'utf8');
-                const fileConfig = yaml.load(fileContent);
-                
+            const filePath = path.join(pagesPath, file);
+            const fileConfig = safeLoadYamlConfig(filePath);
+            
+            if (fileConfig) {
                 // 提取文件名（不含扩展名）作为配置键
                 const configKey = path.basename(file, path.extname(file));
                 
@@ -215,10 +224,6 @@ function loadModularConfig(dirPath) {
                 
                 // 将页面配置添加到主配置对象
                 config[configKey] = fileConfig;
-                
-                console.log(`Loaded page configuration from ${filePath}`);
-            } catch (e) {
-                console.error(`Error loading page configuration from ${path.join(pagesPath, file)}:`, e);
             }
         });
     }
@@ -253,15 +258,6 @@ function ensureConfigDefaults(config) {
     background: '#f5f7fa',
     modeToggle: true
   };
-  
-  // 确保主题颜色设置存在
-  if (!result.site.theme) {
-    result.site.theme = {
-      primary: '#4a89dc',
-      background: '#f5f7fa',
-      modeToggle: true
-    };
-  }
   
   // 用户资料默认值
   result.profile = result.profile || {};
@@ -300,40 +296,49 @@ function validateConfig(config) {
     return false;
   }
   
-  // 检查必要的顶级属性
-  if (!config.site) {
-    console.warn('配置警告: 缺少site配置节点');
-  }
-  
-  // 导航配置检查
-  if (!Array.isArray(config.navigation)) {
-    console.warn('配置警告: navigation不是数组类型');
-  }
-  
-  // 验证分类和站点结构
-  if (!Array.isArray(config.categories)) {
-    console.warn('配置警告: categories不是数组类型');
-  } else {
-    // 检查分类结构
-    config.categories.forEach((category, index) => {
-      if (!category.name) {
-        console.warn(`配置警告: 第${index+1}个分类没有name属性`);
-      }
-      
-      if (!Array.isArray(category.sites)) {
-        console.warn(`配置警告: 分类 "${category.name || `#${index+1}`}" 的sites不是数组类型`);
-      } else {
-        // 检查站点URL
-        category.sites.forEach((site, siteIndex) => {
-          if (!site.url) {
-            console.warn(`配置警告: 分类 "${category.name || `#${index+1}`}" 中第${siteIndex+1}个站点缺少url属性`);
-          }
-        });
-      }
-    });
-  }
+  // 所有其他验证被移除，因为它们只是检查但没有实际操作
+  // 配置默认值和数据修复已经在ensureConfigDefaults函数中处理
   
   return true;
+}
+
+/**
+ * 获取导航项的子菜单数据
+ * @param {Object} navItem 导航项对象
+ * @param {Object} config 配置对象
+ * @returns {Array|null} 子菜单数据数组或null
+ */
+function getSubmenuForNavItem(navItem, config) {
+  if (!navItem || !navItem.id || !config) {
+    return null;
+  }
+  
+  // 首页页面添加子菜单（分类）
+  if (navItem.id === 'home' && Array.isArray(config.categories)) {
+    return config.categories;
+  }
+  // 书签页面添加子菜单（分类）
+  else if (navItem.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
+    return config.bookmarks.categories;
+  }
+  // 项目页面添加子菜单
+  else if (navItem.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
+    return config.projects.categories;
+  }
+  // 文章页面添加子菜单
+  else if (navItem.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
+    return config.articles.categories;
+  }
+  // 友链页面添加子菜单
+  else if (navItem.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
+    return config.friends.categories;
+  }
+  // 通用处理：任意自定义页面的子菜单生成
+  else if (config[navItem.id] && config[navItem.id].categories && Array.isArray(config[navItem.id].categories)) {
+    return config[navItem.id].categories;
+  }
+  
+  return null;
 }
 
 /**
@@ -355,7 +360,7 @@ function prepareRenderData(config) {
   // 确保navigation是数组
   if (!Array.isArray(renderData.navigation)) {
     renderData.navigation = [];
-    console.warn('Warning: navigation is not an array. Using empty array instead.');
+    // 移除警告日志，数据处理逻辑保留
   }
   
   // 添加导航项的活动状态标记和子菜单
@@ -368,30 +373,10 @@ function prepareRenderData(config) {
         active: index === 0 // 兼容原有逻辑
       };
       
-      // 为导航项添加子菜单
-      // 首页页面添加子菜单（分类）
-      if (item.id === 'home' && Array.isArray(renderData.categories)) {
-        navItem.submenu = renderData.categories;
-      }
-      // 书签页面添加子菜单（分类）
-      else if (item.id === 'bookmarks' && renderData.bookmarks && Array.isArray(renderData.bookmarks.categories)) {
-        navItem.submenu = renderData.bookmarks.categories;
-      }
-      // 项目页面添加子菜单
-      else if (item.id === 'projects' && renderData.projects && Array.isArray(renderData.projects.categories)) {
-        navItem.submenu = renderData.projects.categories;
-      }
-      // 文章页面添加子菜单
-      else if (item.id === 'articles' && renderData.articles && Array.isArray(renderData.articles.categories)) {
-        navItem.submenu = renderData.articles.categories;
-      }
-      // 友链页面添加子菜单
-      else if (item.id === 'friends' && renderData.friends && Array.isArray(renderData.friends.categories)) {
-        navItem.submenu = renderData.friends.categories;
-      }
-      // 通用处理：任意自定义页面的子菜单生成
-      else if (renderData[item.id] && renderData[item.id].categories && Array.isArray(renderData[item.id].categories)) {
-        navItem.submenu = renderData[item.id].categories;
+      // 使用辅助函数获取子菜单
+      const submenu = getSubmenuForNavItem(navItem, renderData);
+      if (submenu) {
+        navItem.submenu = submenu;
       }
 
       return navItem;
@@ -428,22 +413,18 @@ function loadConfig() {
   // 根据优先级顺序选择最高优先级的配置
   if (hasUserModularConfig) {
     // 1. 最高优先级: config/user/ 目录
-    console.log('Using modular user configuration from config/user/ (highest priority)');
     config = loadModularConfig('config/user');
   } else if (hasDefaultModularConfig) {
     // 2. 次高优先级: config/_default/ 目录
-    console.log('Using modular default configuration from config/_default/');
     config = loadModularConfig('config/_default');
   } else {
     // 3. 最低优先级: 旧版单文件配置 (config.yml or config.yaml)
-    console.log('Using legacy single-file configuration');
     const legacyConfigPath = fs.existsSync('config.yml') ? 'config.yml' : 'config.yaml';
     
     if (fs.existsSync(legacyConfigPath)) {
       try {
         const fileContent = fs.readFileSync(legacyConfigPath, 'utf8');
         config = yaml.load(fileContent);
-        console.log(`Loaded legacy configuration from ${legacyConfigPath}`);
       } catch (e) {
         console.error(`Error loading configuration from ${legacyConfigPath}:`, e);
       }
@@ -457,7 +438,7 @@ function loadConfig() {
   config = ensureConfigDefaults(config);
   
   if (!validateConfig(config)) {
-    console.warn('Configuration validation warnings found. Continuing with defaults.');
+    // 移除警告日志，保留函数调用
   }
   
   // 准备渲染数据
@@ -471,72 +452,15 @@ function generateNavigation(navigation, config) {
     return navigation.map(nav => {
         // 根据页面ID获取对应的子菜单项（分类）
         let submenuItems = '';
-
-        // 首页页面添加子菜单（分类）
-        if (nav.id === 'home' && Array.isArray(config.categories)) {
+        
+        // 使用辅助函数获取子菜单数据
+        const submenu = getSubmenuForNavItem(nav, config);
+        
+        // 如果存在子菜单，生成HTML
+        if (submenu && Array.isArray(submenu)) {
             submenuItems = `
                 <div class="submenu">
-                    ${config.categories.map(category => `
-                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
-                            <i class="${escapeHtml(category.icon)}"></i>
-                            <span>${escapeHtml(category.name)}</span>
-                        </a>
-                    `).join('')}
-                </div>`;
-        }
-        // 书签页面添加子菜单（分类）
-        else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
-            submenuItems = `
-                <div class="submenu">
-                    ${config.bookmarks.categories.map(category => `
-                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
-                            <i class="${escapeHtml(category.icon)}"></i>
-                            <span>${escapeHtml(category.name)}</span>
-                        </a>
-                    `).join('')}
-                </div>`;
-        }
-        // 项目页面添加子菜单
-        else if (nav.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
-            submenuItems = `
-                <div class="submenu">
-                    ${config.projects.categories.map(category => `
-                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
-                            <i class="${escapeHtml(category.icon)}"></i>
-                            <span>${escapeHtml(category.name)}</span>
-                        </a>
-                    `).join('')}
-                </div>`;
-        }
-        // 文章页面添加子菜单
-        else if (nav.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
-            submenuItems = `
-                <div class="submenu">
-                    ${config.articles.categories.map(category => `
-                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
-                            <i class="${escapeHtml(category.icon)}"></i>
-                            <span>${escapeHtml(category.name)}</span>
-                        </a>
-                    `).join('')}
-                </div>`;
-        }
-        // 友链页面添加子菜单
-        else if (nav.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
-            submenuItems = `
-                <div class="submenu">
-                    ${config.friends.categories.map(category => `
-                        <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
-                            <i class="${escapeHtml(category.icon)}"></i>
-                            <span>${escapeHtml(category.name)}</span>
-                        </a>
-                    `).join('')}
-                </div>`;
-        }
-        // 通用处理：任意自定义页面的子菜单生成
-        else if (config[nav.id] && config[nav.id].categories && Array.isArray(config[nav.id].categories)) {
-            submenuItems = `
-                <div class="submenu">
-                    ${config[nav.id].categories.map(category => `
+                    ${submenu.map(category => `
                         <a href="#${category.name}" class="submenu-item" data-page="${nav.id}" data-category="${category.name}">
                             <i class="${escapeHtml(category.icon)}"></i>
                             <span>${escapeHtml(category.name)}</span>
@@ -623,22 +547,9 @@ function generateSocialLinks(social) {
                 </a>`).join('\n');
 }
 
-// 生成欢迎区域和首页内容
-function generateHomeContent(config) {
-    const profile = config.profile || {};
-    
-    return `
-                <div class="welcome-section">
-                    <h2>${escapeHtml(profile.title || '欢迎使用')}</h2>
-                    <h3>${escapeHtml(profile.subtitle || '个人导航站')}</h3>
-                    <p class="subtitle">${escapeHtml(profile.description || '快速访问您的常用网站')}</p>
-                </div>
-${generateCategories(config.categories)}`;
-}
-
-// 生成页面内容
+// 生成页面内容（包括首页和其他页面）
 function generatePageContent(pageId, data) {
-    // 确保数据对象存在且有必要的字段
+    // 确保数据对象存在
     if (!data) {
         console.error(`Missing data for page: ${pageId}`);
         return `
@@ -648,13 +559,23 @@ function generatePageContent(pageId, data) {
                 </div>`;
     }
     
-    // 设置默认值
-    const title = data.title || `${pageId} 页面`;
-    const subtitle = data.subtitle || '';
-    const categories = data.categories || [];
-    
-    // 如果是书签页面，使用bookmarks配置
-    if (pageId === 'bookmarks') {
+    // 首页使用profile数据，其他页面使用自身数据
+    if (pageId === 'home') {
+        const profile = data.profile || {};
+        
+        return `
+                <div class="welcome-section">
+                    <h2>${escapeHtml(profile.title || '欢迎使用')}</h2>
+                    <h3>${escapeHtml(profile.subtitle || '个人导航站')}</h3>
+                    <p class="subtitle">${escapeHtml(profile.description || '快速访问您的常用网站')}</p>
+                </div>
+${generateCategories(data.categories)}`;
+    } else {
+        // 其他页面使用通用结构
+        const title = data.title || `${pageId} 页面`;
+        const subtitle = data.subtitle || '';
+        const categories = data.categories || [];
+        
         return `
                 <div class="welcome-section">
                     <h2>${escapeHtml(title)}</h2>
@@ -662,13 +583,6 @@ function generatePageContent(pageId, data) {
                 </div>
                 ${generateCategories(categories)}`;
     }
-    
-    return `
-                <div class="welcome-section">
-                    <h2>${escapeHtml(title)}</h2>
-                    <p class="subtitle">${escapeHtml(subtitle)}</p>
-                </div>
-                ${generateCategories(categories)}`;
 }
 
 // 生成搜索结果页面
@@ -762,30 +676,10 @@ function renderPage(pageId, config) {
         active: nav.id === pageId // 兼容原有逻辑
       };
       
-      // 确保子菜单信息正确
-      // 首页页面添加子菜单（分类）
-      if (nav.id === 'home' && Array.isArray(config.categories)) {
-        navItem.submenu = config.categories;
-      }
-      // 书签页面添加子菜单（分类）
-      else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
-        navItem.submenu = config.bookmarks.categories;
-      }
-      // 项目页面添加子菜单
-      else if (nav.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
-        navItem.submenu = config.projects.categories;
-      }
-      // 文章页面添加子菜单
-      else if (nav.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
-        navItem.submenu = config.articles.categories;
-      }
-      // 友链页面添加子菜单
-      else if (nav.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
-        navItem.submenu = config.friends.categories;
-      }
-      // 通用处理：任意自定义页面的子菜单生成
-      else if (config[nav.id] && config[nav.id].categories && Array.isArray(config[nav.id].categories)) {
-        navItem.submenu = config[nav.id].categories;
+      // 使用辅助函数获取子菜单
+      const submenu = getSubmenuForNavItem(navItem, config);
+      if (submenu) {
+        navItem.submenu = submenu;
       }
       
       return navItem;
@@ -813,10 +707,6 @@ function renderPage(pageId, config) {
  * @returns {Object} 包含所有页面HTML的对象
  */
 function generateAllPagesHTML(config) {
-  // 初始化模板系统（这已经在main中执行过，但为了确保，我们在这里再次调用）
-  loadHandlebarsTemplates();
-  console.log('Handlebars templates available. Using template rendering.');
-  
   // 页面内容集合
   const pages = {};
   
@@ -859,17 +749,10 @@ function generateHTML(config) {
   const navigationData = config.navigation.map(nav => {
     const navItem = { ...nav };
     
-    // 根据页面ID获取对应的子菜单项（分类）
-    if (nav.id === 'home' && Array.isArray(config.categories)) {
-      navItem.submenu = config.categories;
-    }
-    // 书签页面添加子菜单（分类）
-    else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
-      navItem.submenu = config.bookmarks.categories;
-    }
-    // 其他页面添加子菜单
-    else if (config[nav.id] && config[nav.id].categories && Array.isArray(config[nav.id].categories)) {
-      navItem.submenu = config[nav.id].categories;
+    // 使用辅助函数获取子菜单
+    const submenu = getSubmenuForNavItem(navItem, config);
+    if (submenu) {
+      navItem.submenu = submenu;
     }
     
     return navItem;
@@ -898,15 +781,8 @@ function generateHTML(config) {
   };
   
   try {
-    // 使用Handlebars模板
-    const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
-    if (!fs.existsSync(defaultLayoutPath)) {
-      throw new Error('Default layout template not found.');
-    }
-    
-    // 加载默认布局模板
-    const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
-    const layoutTemplate = handlebars.compile(layoutContent);
+    // 使用辅助函数获取默认布局模板
+    const { template: layoutTemplate } = getDefaultLayoutTemplate();
     
     // 渲染模板
     return layoutTemplate(layoutData);
@@ -926,7 +802,6 @@ function copyStaticFiles(config) {
     // 复制CSS文件
     try {
         fs.copyFileSync('assets/style.css', 'dist/style.css');
-        console.log('Copied style.css to dist/');
     } catch (e) {
         console.error('Error copying style.css:', e);
     }
@@ -934,7 +809,6 @@ function copyStaticFiles(config) {
     // 复制JavaScript文件
     try {
         fs.copyFileSync('src/script.js', 'dist/script.js');
-        console.log('Copied script.js to dist/');
     } catch (e) {
         console.error('Error copying script.js:', e);
     }
@@ -944,10 +818,8 @@ function copyStaticFiles(config) {
         try {
             if (fs.existsSync(`assets/${config.site.favicon}`)) {
                 fs.copyFileSync(`assets/${config.site.favicon}`, `dist/${path.basename(config.site.favicon)}`);
-                console.log(`Copied favicon: ${config.site.favicon} to dist/`);
             } else if (fs.existsSync(config.site.favicon)) {
                 fs.copyFileSync(config.site.favicon, `dist/${path.basename(config.site.favicon)}`);
-                console.log(`Copied favicon: ${config.site.favicon} to dist/`);
             } else {
                 console.warn(`Warning: Favicon file not found: ${config.site.favicon}`);
             }
@@ -957,97 +829,9 @@ function copyStaticFiles(config) {
     }
 }
 
-// 处理模板文件，替换占位符
-function processTemplate(template, config) {
-    const currentYear = new Date().getFullYear();
-    const googleFontsLink = generateGoogleFontsLink(config);
-    const fontVariables = generateFontVariables(config);
-    
-    // 使用Handlebars渲染
-    const defaultLayoutPath = path.join(process.cwd(), 'templates', 'layouts', 'default.hbs');
-    if (!fs.existsSync(defaultLayoutPath)) {
-        throw new Error('Default layout template not found. Cannot proceed.');
-    }
-    
-    // 确保config.navigation是数组
-    if (!Array.isArray(config.navigation)) {
-        throw new Error('config.navigation is not an array in processTemplate.');
-    }
-    
-    // 准备导航数据，添加submenu字段
-    const navigationData = config.navigation.map(nav => {
-        const navItem = { ...nav };
-        
-        // 根据页面ID获取对应的子菜单项（分类）
-        if (nav.id === 'home' && Array.isArray(config.categories)) {
-            navItem.submenu = config.categories;
-        }
-        // 书签页面添加子菜单（分类）
-        else if (nav.id === 'bookmarks' && config.bookmarks && Array.isArray(config.bookmarks.categories)) {
-            navItem.submenu = config.bookmarks.categories;
-        }
-        // 项目页面添加子菜单
-        else if (nav.id === 'projects' && config.projects && Array.isArray(config.projects.categories)) {
-            navItem.submenu = config.projects.categories;
-        }
-        // 文章页面添加子菜单
-        else if (nav.id === 'articles' && config.articles && Array.isArray(config.articles.categories)) {
-            navItem.submenu = config.articles.categories;
-        }
-        // 友链页面添加子菜单
-        else if (nav.id === 'friends' && config.friends && Array.isArray(config.friends.categories)) {
-            navItem.submenu = config.friends.categories;
-        }
-        // 通用处理：任意自定义页面的子菜单生成
-        else if (config[nav.id] && config[nav.id].categories && Array.isArray(config[nav.id].categories)) {
-            navItem.submenu = config[nav.id].categories;
-        }
-        
-        return navItem;
-    });
-    
-    // 准备模板数据
-    const templateData = {
-        site: config.site || {},
-        navigation: generateNavigation(config.navigation, config),
-        navigationData: navigationData, // 带有子菜单的导航数据
-        social: Array.isArray(config.social) ? config.social : [], // 社交数据
-        categories: Array.isArray(config.categories) ? config.categories : [],
-        profile: config.profile || {},
-        googleFontsLink: googleFontsLink,
-        fontVariables: fontVariables,
-        currentYear: currentYear,
-        socialLinks: generateSocialLinks(config.social), // 使用生成的HTML
-        searchResults: generateSearchResultsPage(config),
-        body: config.content || '' // 支持布局模板用
-    };
-    
-    // 加载默认布局模板
-    const layoutContent = fs.readFileSync(defaultLayoutPath, 'utf8');
-    const layoutTemplate = handlebars.compile(layoutContent);
-    
-    // 渲染模板
-    return layoutTemplate(templateData);
-}
-
-// 调试函数
-function debugConfig(config) {
-    console.log('==== DEBUG INFO ====');
-    console.log('Navigation items:', config.navigation.map(nav => nav.id));
-    console.log('Has bookmarks config:', !!config.bookmarks);
-    if (config.bookmarks) {
-        console.log('Bookmarks title:', config.bookmarks.title);
-        console.log('Bookmarks categories:', config.bookmarks.categories.length);
-    }
-    console.log('==================');
-}
-
 // 主函数
 function main() {
     const config = loadConfig();
-    
-    // 输出调试信息
-    debugConfig(config);
     
     try {
         // 确保dist目录存在
@@ -1058,15 +842,11 @@ function main() {
         // 初始化Handlebars模板系统
         loadHandlebarsTemplates();
         
-        console.log('Handlebars templates are initialized.');
-        
         // 使用generateHTML函数生成完整的HTML
         const htmlContent = generateHTML(config);
-        console.log('Successfully rendered all pages using Handlebars templates.');
         
         // 生成HTML
         fs.writeFileSync('dist/index.html', htmlContent);
-        console.log('Successfully generated dist/index.html');
         
         // 复制静态文件
         copyStaticFiles(config);

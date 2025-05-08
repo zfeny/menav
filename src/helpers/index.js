@@ -16,19 +16,16 @@ function registerAllHelpers(handlebars) {
   // 注册格式化助手函数
   Object.entries(formatters).forEach(([name, helper]) => {
     handlebars.registerHelper(name, helper);
-    console.log(`Registered formatter helper: ${name}`);
   });
   
   // 注册条件判断助手函数
   Object.entries(conditions).forEach(([name, helper]) => {
     handlebars.registerHelper(name, helper);
-    console.log(`Registered condition helper: ${name}`);
   });
   
   // 注册工具类助手函数
   Object.entries(utils).forEach(([name, helper]) => {
     handlebars.registerHelper(name, helper);
-    console.log(`Registered utility helper: ${name}`);
   });
   
   // 注册HTML转义函数（作为助手函数，方便在模板中调用）
@@ -51,8 +48,6 @@ function registerAllHelpers(handlebars) {
     }
     return new handlebars.SafeString(text);
   });
-  
-  console.log('All Handlebars helpers registered successfully.');
 }
 
 // 导出所有助手函数和注册函数
