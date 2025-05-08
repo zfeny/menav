@@ -5,18 +5,24 @@
 - name: 自部署项目
   icon: fas fa-project-diagram
   id: projects
+  active: false
 - name: 摸鱼充电
   icon: fas fa-coffee
   id: "recharge"
+  active: false
 - name: 学习资源
   icon: fas fa-graduation-cap
   id: "study"
+  active: false
 - name: 兴趣部落
   icon: fas fa-users
   id: "interest"
+  active: false
 - name: 工具箱
   icon: fas fa-toolbox
   id: "toolbox"
+  active: false
 - name: 临时停靠港
   icon: fas fa-clock
   id: "temp"
+  active: false
