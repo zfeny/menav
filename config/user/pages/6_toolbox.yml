@@ -2,6 +2,41 @@ title: "工具百宝箱"          # 页面标题
 subtitle: "不属于特定兴趣或工作，但偶尔会用到的实用工具。"   # 页面副标题
 
 categories:
+  - name: 服务器相关
+    icon: fas fa-server
+    sites:
+      - name: 在线DNS解析
+        url: http://www.ip33.com/dns.html
+        icon: fas fa-globe
+        description: 在线DNS解析查询工具，支持多种DNS记录类型
+      - name: 公共DNS服务器大全
+        url: https://dns.iui.im/
+        icon: fas fa-globe
+        description: 公共DNS服务器列表，支持IPv4和IPv6
+      - name: Ping0
+        url: https://ping0.cc/
+        icon: fas fa-plug
+        description: IP洁净度检测
+      - name: Scamalytics
+        url: https://scamalytics.com
+        icon: fas fa-plug
+        description: IP信誉查询工具，支持IP地址和域名查询
+      - name: 域名比价
+        url: https://zh-hans.tld-list.com/
+        icon: fas fa-globe
+        description: 域名注册商价格比较工具，支持多种顶级域名
+      - name: 在线Ping
+        url: https://ping.eu
+        icon: fas fa-plug
+        description: 在线Ping测试工具，支持多种网络协议
+      - name: IPIP.net
+        url: https://www.ipip.net
+        icon: fas fa-globe
+        description: IP地址查询工具，支持IP地址定位和反向解析
+      - name: IP138
+        url: https://www.ip138.com
+        icon: fas fa-globe
+        description: IP地址查询工具，支持IP地址定位和反向解析
   - name: 格式转换
     icon: fas fa-exchange-alt
     sites:

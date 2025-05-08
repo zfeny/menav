@@ -97,7 +97,3 @@ categories:
         url: https://linkwarden.534612.xyz
         icon: fas fa-th-large
         description: 云端书签管理工具
-      - name: Substore
-        url: https://substore.630516.xyz
-        icon: fas fa-th-large
-        description: 自部署订阅聚合平台

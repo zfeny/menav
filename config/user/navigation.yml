@@ -1,28 +1,28 @@
 - name: 首页
   icon: fas fa-home
-  id: "home"
+  id: "1_home"
   active: true
 - name: 自部署项目
   icon: fas fa-project-diagram
-  id: projects
+  id: 2_projects
   active: false
 - name: 摸鱼充电
   icon: fas fa-coffee
-  id: "recharge"
+  id: "3_recharge"
   active: false
 - name: 学习资源
   icon: fas fa-graduation-cap
-  id: "study"
+  id: "4_study"
   active: false
 - name: 兴趣部落
   icon: fas fa-users
-  id: "interest"
+  id: "5_interest"
   active: false
 - name: 工具箱
   icon: fas fa-toolbox
-  id: "toolbox"
+  id: "6_toolbox"
   active: false
 - name: 临时停靠港
   icon: fas fa-clock
-  id: "temp"
+  id: "7_temp"
   active: false
