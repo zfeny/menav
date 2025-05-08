@@ -1,10 +1,10 @@
 - name: 首页
   icon: fas fa-home
-  id: "1_home"
+  id: "1home"
   active: true
 - name: 自部署项目
   icon: fas fa-project-diagram
-  id: 2_projects
+  id: 2projects
 - name: 摸鱼充电
   icon: fas fa-coffee
   id: 3_recharge
