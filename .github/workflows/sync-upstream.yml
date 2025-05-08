@@ -33,8 +33,8 @@ jobs:
         run: |
           # 把 YOUR_UPSTREAM_REPO_URL 替换成真正的上游仓库地址
           # 例如: https://github.com/upstream_owner/upstream_repo.git
-          git remote add upstream https://github.com/rbetree/menav
-
+          git remote add upstream https://github.com/rbetree/menav.git
+          
       - name: Fetch Upstream
         run: git fetch upstream
 
