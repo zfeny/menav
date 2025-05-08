@@ -1,0 +1,103 @@
+title: 我的项目
+subtitle: 一些自部署实例与NAS服务
+
+categories:
+  - name: 常用
+    icon: fas fa-star
+    sites:
+      - name: Alist
+        url: https://alist.630516.xyz
+        icon: fas fa-folder-open
+        description: 自部署网盘，支持多种存储后端
+      - name: SillyTavern
+        url: https://sillytavern.534612.xyz
+        icon: fas fa-comments
+        description: 高级大语言模型对话平台
+      - name: Sun-panel
+        url: https://sunpanel.630516.xyz
+        icon: fas fa-sun
+        description: 账户鉴权/内外网分流访问面板
+      - name: NewAPI
+        url: https://api.534612.xyz
+        icon: fas 
+        description: 自部署API聚合平台
+
+  - name: 存储同步类
+    icon: fas fa-hdd
+    sites:
+      - name: Alist
+        url: https://alist.630516.xyz
+        icon: fas fa-folder-open
+        description: 自部署网盘，支持多种存储后端
+      - name: Minio
+        url: https://minio-ui.630516.xyz
+        icon: fas fa-hdd
+        description: 自部署对象存储，兼容S3协议
+      - name: Adminer
+        url: https://adminer.630516.xyz
+        icon: fas fa-database
+        description: 自部署数据库管理工具
+      - name: SFTPGo
+        url: https://sftpgo-ui.630516.xyz
+        icon: fas fa-hdd
+        description: 自部署SFTP服务器
+  - name: AI类
+    icon: fas fa-robot
+    sites:
+      - name: LobeChat
+        url: https://lobe.630516.xyz
+        icon: fas fa-robot
+        description: 自部署AI助手
+      - name: SillyTavern
+        url: https://sillytavern.534612.xyz
+        icon: fas fa-comments
+        description: 高级大语言模型对话平台
+      - name: NewAPI
+        url: https://api.534612.xyz
+        icon: fas 
+        description: 自部署API聚合平台
+  - name: 订阅服务类
+    icon: fas fa-rss
+    sites:
+      - name: Bitwarden
+        url: https://bitwarden.630516.xyz
+        icon: fas fa-key
+        description: 自部署密码管理器
+      - name: QD签到
+        url: https://qd.534612.xyz
+        icon: fas fa-check-circle
+        description: 自部署签到平台，支持多种签到脚本
+  - name: 文档分享类
+    icon: fas fa-file-alt
+    sites:
+      - name: CloudPaste
+        url: https://cloudpaste.534612.xyz
+        icon: fas fa-file-alt
+        description: 自部署文档分享平台，支持Markdown和代码高亮
+      - name: Wiki.js
+        url: https://wiki-js.534612.xyz
+        icon: fas fa-book
+        description: 自部署Wiki平台
+      - name: CloudFlare ImgBed
+        url: https://cf-imgbed.534612.xyz
+        icon: fas fa-image
+        description: 自部署图床
+  - name: 面板聚合类
+    icon: fas fa-th-large
+    sites:
+      - name: Sun-panel
+        url: https://sunpanel.630516.xyz
+        icon: fas fa-sun
+        description: 账户鉴权/内外网分流访问面板
+      - name: 青龙面板
+        url: https://ql.630516.xyz
+        icon: fas fa-th-large
+        description: 自部署青龙面板，用于脚本执行
+      - name: Linkwarden
+        url: https://linkwarden.534612.xyz
+        icon: fas fa-th-large
+        description: 云端书签管理工具
+      - name: Substore
+        url: https://substore.630516.xyz
+        icon: fas fa-th-large
+        description: 自部署订阅聚合平台

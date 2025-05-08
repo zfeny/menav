@@ -1,16 +1,22 @@
 - name: 首页
   icon: fas fa-home
-  id: home
+  id: 1_home
   active: true
-- name: 服务项目
+- name: 自部署项目
   icon: fas fa-project-diagram
-  id: projects
-# - name: 文章
-#   icon: fas fa-book
-#   id: articles
-# - name: 朋友
-#   icon: fas fa-users
-#   id: friends
-# - name: 书签
-#   icon: fas fa-bookmark
-#   id: bookmarks 
+  id: 2_projects
+- name: 摸鱼充电
+  icon: fas fa-coffee
+  id: 3_recharge
+- name: 学习资源
+  icon: fas fa-graduation-cap
+  id: 4_study
+- name: 兴趣部落
+  icon: fas fa-users
+  id: 5_interest
+- name: 工具箱
+  icon: fas fa-toolbox
+  id: 6_toolbox
+- name: 临时停靠港
+  icon: fas fa-clock
+  id: 7_temp

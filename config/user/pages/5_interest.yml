@@ -1,0 +1,53 @@
+title: "创作 & 输出"          # 页面标题
+subtitle: "“产出型”活动的相关工具平台"   # 页面副标题
+
+categories:
+  - name: 博客平台
+    icon: fas fa-blog
+    sites:
+      - name: Github Pages
+        url: https://pages.github.com
+        icon: fab fa-github
+        description: Github的静态网站托管服务
+      - name: Vercel
+        url: https://vercel.com
+        icon: fab fa-github
+        description: 静态网站托管服务，支持多种框架
+      - name: Netlify
+        url: https://www.netlify.com
+        icon: fab fa-github
+        description: 静态网站托管服务，支持多种框架
+      - name: Gitee Pages
+        url: https://pages.gitee.com
+        icon: fab fa-gitlab
+        description: Gitee的静态网站托管服务
+  - name: 图片编辑工具
+    icon: fas fa-image
+    sites:
+      - name: Canva
+        url: https://www.canva.com
+        icon: fas fa-image
+        description: 在线图片编辑工具
+      - name: Photopea
+        url: https://www.photopea.com
+        icon: fas fa-image
+        description: 在线图片编辑工具，类似Photoshop
+  - name: 设计资源
+    icon: fas fa-palette
+    sites:
+      - name: Figma
+        url: https://www.figma.com
+        icon: fab fa-figma
+        description: 在线设计工具
+      - name: Dribbble
+        url: https://dribbble.com
+        icon: fab fa-dribbble
+        description: 设计师社区
+      - name: Behance
+        url: https://www.behance.net
+        icon: fab fa-behance
+        description: 创意设计平台
+      - name: IconFont
+        url: https://www.iconfont.cn
+        icon: fas fa-icons
+        description: 图标资源库

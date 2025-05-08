@@ -1,0 +1,16 @@
+title: "学习资源"          # 页面标题
+subtitle: "所有能让你学习新知识的地方"   # 页面副标题
+
+categories:
+  - name: 学习资源
+    icon: fas fa-graduation-cap
+    sites:
+      - name: 哔哩哔哩
+        url: https://www.bilibili.com
+        icon: fas fa-play-circle
+        description: 视频学习平台
+      - name: 知乎
+        url: https://www.zhihu.com
+        icon: fas fa-question-circle
+        description: 问答社区
+      

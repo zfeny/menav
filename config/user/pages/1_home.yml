@@ -1,0 +1,55 @@
+title: "核心战场"          # 页面标题
+subtitle: "每天睁开眼就要用到，或者至少是工作学习的命根子"   # 页面副标题
+
+categories:
+  - name: 置顶常用
+    icon: fas fa-star
+    sites:
+      - name: Linux.do
+        url: https://linux.do/
+        icon: fab fa-linux
+        description: 新的理想型社区
+      - name: NewsNow
+        url: https://newsnow.busiyi.world/c/hottest
+        icon: fas fa-newspaper
+        description: 新闻聚合网站
+      - name: LobeChat
+        url: https://lobe.630516.xyz
+        icon: fas fa-robot
+        description: 自部署AI助手
+      - name: Sun-panel
+        url: https://sunpanel.630516.xyz
+        icon: fas fa-sun
+        description: 自部署加密访问面板
+
+  - name: AI助手
+    icon: fas fa-robot
+    sites:
+      - name: ChatGPT
+        url: https://chat.openai.com/chat
+        icon: fab fa-github
+        description: ChatGPT
+      - name: Bing Chat
+        url: https://www.bing.com/search?q=bing+chat&showconv=1&form=CONV2&cc=cn
+        icon: fab fa-microsoft
+        description: Bing AI助手
+      - name: Gemini
+        url: https://gemini.google.com/
+        icon: fab fa-google
+        description: Google Gemini
+      - name: Grok
+        url: https://grok.com/
+        icon: fas fa-robot
+        description: X.com AI助手
+      - name: xAI Console
+        url: https://console.x.ai/
+        icon: fas fa-robot
+        description: xAI AI助手
+      - name: Google AI Studio
+        url: https://aistudio.google.com
+        icon: fas fa-robot
+        description: Google AI Studio
+      - name: AI Detectore
+        url: https://gptzero.me
+        icon: fas fa-robot
+        description: AI检测器

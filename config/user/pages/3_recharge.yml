@@ -1,0 +1,60 @@
+title: "摸鱼 & 充电"          # 页面标题
+subtitle: "所有能让你暂时逃离现实，或者给干涸的大脑补充点水分，再或者只是纯粹浪费时间的地方。"   # 页面副标题
+
+categories:
+  - name: 视频网站
+    icon: fas fa-video
+    sites:
+      - name: Youtube
+        url: https://www.youtube.com
+        icon: fab fa-youtube
+        description: 视频分享网站
+      - name: 哔哩哔哩
+        url: https://www.bilibili.com
+        icon: fas fa-play-circle
+        description: 视频学习平台
+      - name: Tiktok
+        url: https://www.tiktok.com
+        icon: fab fa-tiktok
+        description: 短视频分享平台
+      - name: 抖音
+        url: https://www.douyin.com
+        icon: fab fa-tiktok
+        description: 短视频分享平台
+  - name: 新闻资讯
+    icon: fas fa-newspaper
+    sites:
+      - name: NewsNow
+        url: https://newsnow.busiyi.world/c/hottest
+        icon: fas fa-newspaper
+        description: 新闻聚合网站
+      - name: Reddit
+        url: https://www.reddit.com
+        icon: fas fa-newspaper
+        description: 社区新闻聚合网站
+      - name: Quora
+        url: https://www.quora.com
+        icon: fas fa-question-circle
+        description: 问答社区
+      - name: 知乎
+        url: https://www.zhihu.com
+        icon: fas fa-question-circle
+        description: 问答社区
+      - name: Folo
+        url: https://app.follow.is/timeline/view-0/all/pending
+        icon: fas fa-newspaper
+        description: RSS聚合网站
+      - name: 掘金
+        url: https://juejin.cn
+        icon: fas fa-book
+        description: 高质量技术社区
+      - name: 36氪
+        url: https://36kr.com
+        icon: fas fa-newspaper
+        description: 创业与投资新闻平台
+      - name: TechCrunch
+        url: https://techcrunch.com
+        icon: fas fa-newspaper
+        description: 科技新闻网站
+      
+      

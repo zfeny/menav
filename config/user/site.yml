@@ -1,19 +1,19 @@
-title: 我的导航
+title: 个人聚合导航
 description: 个人网络导航站
 author: zfeny
 favicon: favicon.ico
-logo_text: 导航站
+logo_text: 聚合导航
 
 fonts:
-  title:
-    family: Poppins
-    weight: 600
-    source: google
-  subtitle:
+  title: # 标题字体设置
+    family: Poppins # 字体名称
+    weight: 600     # 字重值：400常规、500中等、700粗体
+    source: google  # 字体来源：google或system
+  subtitle: # 副标题字体
     family: Quicksand
     weight: 500
     source: google
-  body:
+  body: # 正文字体
     family: Noto Sans SC
     weight: 400
     source: google
@@ -21,18 +21,27 @@ fonts:
 profile:
   title: Hello,
   subtitle: Welcome to My Navigation
-  description: 导航菜单
+  description: 这里整理了我日常使用的网站和工具，方便快速访问。
 
-# social:
-#   - name: GitHub
-#     url: https://github.com
-#     icon: fab fa-github
-#   - name: Telegram
-#     url: https://t.me
-#     icon: fab fa-telegram
-#   - name: Twitter
-#     url: https://twitter.com
-#     icon: fab fa-twitter
-#   - name: Steam
-#     url: https://steam.com
-#     icon: fab fa-steam 
+social:
+  - name: GitHub
+    url: https://github.com/zfeny
+    icon: fab fa-github
+  # - name: Telegram
+  #   url: https://t.me
+  #   icon: fab fa-telegram
+  - name: Twitter
+    url: https://twitter.com
+    icon: fab fa-twitter
+  # - name: Steam
+  #   url: https://steam.com
+  #   icon: fab fa-steam
+  - name: youtube
+    url: https://youtube.com
+    icon: fab fa-youtube
+  - name: Bilibili
+    url: https://bilibili.com
+    icon: fab fa-bilibili
+  - name: linuxdock
+    url: https://linux.do
+    icon: fab fa-linux

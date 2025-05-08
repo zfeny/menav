@@ -1,0 +1,83 @@
+title: "工具百宝箱"          # 页面标题
+subtitle: "不属于特定兴趣或工作，但偶尔会用到的实用工具。"   # 页面副标题
+
+categories:
+  - name: 格式转换
+    icon: fas fa-exchange-alt
+    sites:
+      - name: Convertio
+        url: https://convertio.co/zh
+        icon: fas fa-exchange-alt
+        description: 在线文件转换器，支持多种格式
+      - name: Online-Convert
+        url: https://www.online-convert.com/zh
+        icon: fas fa-exchange-alt
+        description: 多功能在线转换工具，支持多种文件格式
+  - name: 单位换算
+    icon: fas fa-balance-scale
+    sites:
+      - name: Unit Converter
+        url: https://www.unitconverters.net
+        icon: fas fa-balance-scale
+        description: 多种单位换算工具，支持长度、面积、体积等多种单位
+      - name: ConvertUnits
+        url: https://www.convertunits.com
+        icon: fas fa-balance-scale
+        description: 单位换算工具，支持多种单位和货币转换
+      - name: RapidTables
+        url: https://www.rapidtables.com/convert
+        icon: fas fa-balance-scale
+        description: 多种单位换算工具，支持长度、面积、体积等多种单位
+      - name: Metric Conversions
+        url: https://www.metric-conversions.org
+        icon: fas fa-balance-scale
+        description: 公制单位换算工具，支持长度、面积、体积等多种单位
+  - name: 临时邮箱
+    icon: fas fa-envelope
+    sites:
+      - name: Temp Mail
+        url: https://temp-mail.org/zh
+        icon: fas fa-envelope
+        description: 临时邮箱服务，支持匿名接收邮件
+      - name: 10 Minute Mail
+        url: https://10minutemail.com/zh
+        icon: fas fa-envelope
+        description: 10分钟临时邮箱，支持匿名接收邮件
+  - name: 开发工具
+    icon: fas fa-tools
+    sites:
+      - name: VS Code
+        url: https://code.visualstudio.com
+        icon: fas fa-code
+        description: 强大的代码编辑器
+      - name: Postman
+        url: https://www.postman.com
+        icon: fas fa-paper-plane
+        description: API调试工具
+      - name: Git
+        url: https://git-scm.com
+        icon: fab fa-git-alt
+        description: 版本控制工具
+      - name: Docker
+        url: https://www.docker.com
+        icon: fab fa-docker
+        description: 容器化平台
+  - name: 在线工具
+    icon: fas fa-wrench
+    sites:
+      - name: JSON Editor
+        url: https://jsoneditoronline.org
+        icon: fas fa-code-branch
+        description: JSON在线编辑器
+      - name: Can I Use
+        url: https://caniuse.com
+        icon: fas fa-browser
+        description: 浏览器兼容性查询
+      - name: TinyPNG
+        url: https://tinypng.com
+        icon: fas fa-compress
+        description: 图片压缩工具
+      - name: Carbon
+        url: https://carbon.now.sh
+        icon: fas fa-code
+        description: 代码图片生成器

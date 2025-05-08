@@ -1,0 +1,10 @@
+title: 临时停靠港"          # 页面标题
+subtitle: "针对短期项目、特定任务或者最近正在集中研究的领域。"   # 页面副标题
+
+categories:
+  - name: 临时邮箱
+    icon: fas fa-envelope
+    sites:
+      - name: Temp Mail
+        url: https://temp-mail.org/zh
+        icon: fas fa-envelope
