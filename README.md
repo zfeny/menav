@@ -36,10 +36,8 @@
   - [部署到GitHub Pages](#快速部署到github-pages)
   - [部署到自己的服务器](#部署到服务器)
   - [其他CI/CD服务部署](#其他cicd托管选项)
-- [配置指南](#设置配置文件)
-  - [配置方式对比](#配置方式对比)
-  - [双文件配置](#使用双文件配置)
-  - [模块化配置（推荐）](#使用模块化配置)
+- [配置指南](#设置模块化配置文件)
+  - [使用配置](#使用配置)
   - [配置详解](#配置详解)
 - [书签导入](#书签导入功能)
 - [常见问题](#常见问题)
@@ -59,13 +57,20 @@
 - 👥 支持展示社交媒体链接
 - 📝 支持多个内容页面
 - 📌 支持从浏览器导入书签
-- 🧩 模块化配置/双文件配置
+- 🧩 模块化配置
 - 🔄 可部署到GitHub Pages或任何类似的CI/CD服务，及任何服务器
 
 ## 近期更新
 
 <details>
 <summary>点击查看/隐藏更新日志</summary>
+
+### 2025/05/04
+
+**1. 移除双文件配置支持**
+- ✅ 完全移除了对双文件配置方法的支持
+- ✅ 简化了配置加载逻辑，现在仅支持模块化配置
+- ✅ 保留配置迁移工具
 
 ### 2025/05/03
 
@@ -132,6 +137,8 @@ menav/
 │   └── favicon.ico   # 网站图标
 ├── src/              # 源代码
 │   ├── generator.js  # 静态网站生成器
+│   ├── bookmark-processor.js # 书签导入处理器
+│   ├── migrate-config.js # 配置迁移工具
 │   └── script.js     # 前端JavaScript脚本
 ├── templates/        # HTML模板
 │   └── index.html    # HTML骨架模板文件
@@ -151,8 +158,6 @@ menav/
 │       ├── site.yml  # 用户网站配置
 │       ├── navigation.yml # 用户导航配置 
 │       └── pages/    # 用户页面配置
-├── config.yml        # 默认配置文件（传统格式）
-└── config.user.yml   # 用户自定义配置文件（传统格式）
 ```
 
 ## 快速开始
@@ -175,9 +180,9 @@ npm install
 ```
 
 3. 修改配置
-   - 根据您的需求选择配置方式：
-     - 双文件配置：复制`config.yml`为`config.user.yml`并编辑
-     - 模块化配置：在`config/user/`目录下创建配置文件
+   - 在`config/user/`目录下创建配置文件
+   - 至少需要创建`site.yml`和`navigation.yml`
+   - 可以参考`config/_default/`目录结构和内容
    - 自定义站点标题、描述、导航链接和网站分类等
 
 4. 本地预览
@@ -208,17 +213,12 @@ npm run build
 1. Fork仓库:
    - 点击右上角的 Fork 按钮复制此仓库到您的账号
 
-2. 启用必要功能:
-   - 进入仓库的 Settings -> General
-   - 找到 Features 部分
-   - 勾选 "Issues"
-
-3. 启用Actions:
+2. 启用Actions:
    - 进入fork后的仓库
    - 点击顶部的 "Actions" 标签页
    - 点击绿色按钮 "I understand my workflows, go ahead and enable them"
 
-4. 配置Pages:
+3. 配置Pages:
    - 进入仓库的 Settings -> Pages
    - 在 "Build and deployment" 部分
    - Source: 选择 "GitHub Actions"
@@ -227,8 +227,7 @@ npm run build
 
 1. 创建个人配置文件:
    - **重要:** 始终创建自己的用户配置文件，不要直接修改默认配置文件
-   - 可以使用双文件配置或模块化配置
-   - 推荐使用模块化配置（见[使用模块化配置](#使用模块化配置)）
+   - 使用模块化配置（见[使用模块化配置](#使用模块化配置)）
    - 提交您的配置文件到仓库
 
 2. 等待自动部署:
@@ -238,15 +237,14 @@ npm run build
 
 > 重要提示: 请注意不要在配置文件中包含敏感信息，因为它将被提交到公开仓库。
 
-#### 故障排除
 
-如果遇到部署问题:
-1. 请确保完成了所有前置设置步骤
-2. 检查每个设置页面是否都点击了 Save 按钮
-3. 如果修改设置后部署仍然失败:
-   - 进入 Actions 标签页
-   - 找到失败的工作流
-   - 点击 "Re-run all jobs" 重新运行
+**重要: Sync fork后需要手动触发工作流**:
+- 当您使用GitHub界面上的"Sync fork"按钮同步本仓库的更新后
+- GitHub Actions工作流不会自动运行
+- 您需要手动触发构建流程:
+  - 进入 Actions 标签页
+  - 选择左侧的 "Build and Deploy" 工作流
+  - 点击 "Run workflow" 按钮
 
 </details>
 
@@ -326,62 +324,21 @@ server {
 
 </details>
 
-## 设置配置文件
+## 设置模块化配置文件
 
-MeNav支持两种配置方式：双文件配置和模块化配置（推荐）。
+MeNav使用模块化配置方式，将配置分散到多个文件中，更易于管理和维护。
 
-> **🔔 重要提示：** 请务必创建并使用您自己的配置文件（`config.user.yml`或`config/user/`目录），不要直接修改默认配置文件，以便后续更新项目时不会丢失您的个性化设置。
+> **🔔 重要提示：** 请务必在`config/user/`目录下创建并使用您自己的配置文件，不要直接修改默认配置文件，以便后续更新项目时不会丢失您的个性化设置。
 
 在加载配置时遵循以下优先级顺序：
 1. `config/user/` （模块化用户配置）（优先级最高）
-2. `config.user.yml`和 `bookmarks.user.yml`（双文件用户配置）
-3. `config/_default/` （模块化默认配置）
-4. `config.yml`和`bookmarks.yml`（双文件默认配置）（优先级最低）
+2. `config/_default/` （模块化默认配置）
 
-**注意：** 各优先级配置间采用完全替换策略，而非合并。系统会选择存在的最高优先级配置，完全忽略其他低优先级配置。这确保了模块化配置和双文件配置都能独立使用，避免混合配置带来的意外行为。
+**注意：** 采用完全替换策略，而非合并。系统会选择存在的用户配置，完全忽略默认配置。
 
-### 配置方式对比
+### 使用配置
 
-<table>
-  <tr>
-    <th>特性</th>
-    <th>双文件配置</th>
-    <th>模块化配置（推荐）</th>
-  </tr>
-  <tr>
-    <td>配置文件</td>
-    <td>两个主要文件：<code>config.user.yml</code> 和 <code>bookmarks.user.yml</code></td>
-    <td>分散到多个文件：<code>config/user/site.yml</code>, <code>navigation.yml</code>, <code>pages/*.yml</code></td>
-  </tr>
-  <tr>
-    <td>适用场景</td>
-    <td>小型网站，快速开始</td>
-    <td>复杂网站，长期维护</td>
-  </tr>
-  <tr>
-    <td>关注点分离</td>
-    <td>所有配置集中在一个文件</td>
-    <td>每个页面和功能区域有专属配置文件</td>
-  </tr>
-  <tr>
-    <td>兼容性</td>
-    <td>传统方式，简单直接</td>
-    <td>完全兼容传统方式，不影响旧版本</td>
-  </tr>
-</table>
-
-### 使用双文件配置
-
-双文件配置由 `config.yml`/`config.user.yml` 和 `bookmarks.yml`/`bookmarks.user.yml` 两个文件组成，适合小型网站和快速开始。
-
-* **创建配置文件**:
-   - 复制 `config.yml` 为 `config.user.yml`
-   - 对于书签配置，请勿手动创建 `bookmarks.user.yml`，它应通过[书签导入功能](#书签导入功能)自动生成
-   - 编辑 `config.user.yml` 添加您的配置
-
-### 使用模块化配置
-
-模块化配置将配置分散到多个文件中，更易于管理和维护，推荐用于复杂网站。
+模块化配置将配置分散到多个文件中，更易于管理和维护。
 
 * **创建配置目录**:
    - 在`config/user/`目录下创建您的自定义配置文件
@@ -393,131 +350,213 @@ MeNav支持两种配置方式：双文件配置和模块化配置（推荐）。
 <details>
 <summary>点击展开</summary>
 
-以下是配置文件各部分的详细说明，适用于双文件配置和模块化配置两种方式。
+MeNav的配置系统分为三个主要部分，对应三种不同类型的配置文件：
 
-#### 配置文件结构
+1. `site.yml` - 网站基本信息、字体、个人资料和社交媒体链接
+2. `navigation.yml` - 导航菜单配置
+3. `pages/` 目录 - 各页面的内容配置
 
-配置文件使用YAML格式，包含多个关键部分：
+以下详细介绍每个配置文件的结构和用途。
+
+### 一、site.yml 配置文件
+
+site.yml文件包含网站的基本信息、字体设置、个人资料和社交媒体链接等全局配置，这些设置会影响整个网站的呈现。
 
 ```yaml
 # 网站基本信息
-site:
-  title: 网站标题
-  description: 网站描述
-  author: 作者名
-  favicon: favicon.ico  # 网站图标,支持ico、png等格式
+title: "我的导航站"         # 网站标题，显示在浏览器标签和页面顶部
+description: "个人网址导航"  # 网站描述，用于SEO和分享卡片
+author: "张三"             # 作者姓名
+favicon: "favicon.ico"     # 网站图标，支持ico、png等格式
+logo_text: "导航站"         # 左上角显示的Logo文本
 
 # 字体设置
 fonts:
-  title:  # 标题字体
-    family: 字体名称
-    weight: 字重值
-    source: 字体来源
+  title:  # 标题字体设置
+    family: "Roboto"  # 字体名称
+    weight: 700       # 字重值：400常规、500中等、700粗体
+    source: "google"  # 字体来源：google或system
   subtitle:  # 副标题字体
-    family: 字体名称
-    weight: 字重值
-    source: 字体来源
+    family: "Noto Sans SC"
+    weight: 500
+    source: "google"
   body:  # 正文字体
-    family: 字体名称
-    weight: 字重值
-    source: 字体来源
-
-# 个人信息
-profile:
-  title: 欢迎语
-  subtitle: 副标题
-  description: 描述
-
-# 导航菜单
-navigation:
-  - name: 菜单名称
-    icon: 图标类名
-    id: 页面ID
-    active: 是否激活
-
-# 类别
-categories:
-  - name: 分类名称
-    icon: 分类图标
-    sites:
-      - name: 网站名称
-        url: 网站地址
-        icon: 网站图标
-        description: 网站描述
-
-# 更多配置...
-```
-
-#### 添加网站链接
-
-在配置文件中的 categories 部分添加新站点：
-
-```yaml
-categories:
-  - name: 分类名称
-    icon: 分类图标
-    sites:
-      - name: 网站名称
-        url: 网站地址
-        icon: 网站图标
-        description: 网站描述
-```
-
-#### 设置网站字体
-
-字体配置有三个关键属性：
-
-- `family`: 字体名称，支持Web安全字体或Google Fonts
-- `weight`: 字体粗细，常用值如400(常规)、500(中等)、600(粗体)等
-- `source`: 字体来源，可选"google"或"system"
-
-例如使用Google字体:
-```yaml
-fonts:
-  body:
-    family: "Noto Sans SC"  # Google提供的中文字体
+    family: "Noto Sans SC"
     weight: 400
     source: "google"
+    
+# 个人资料配置
+profile:
+  title: "欢迎来到我的导航站"       # 主标题/欢迎语
+  subtitle: "收集实用网站和工具"    # 副标题
+  description: "这里整理了我日常使用的网站和工具，方便快速访问。" # 详细描述
+
+# 社交媒体链接
+social:
+  - name: "GitHub"
+    url: "https://github.com/your-username"
+    icon: "fab fa-github"
+  - name: "Twitter"
+    url: "https://twitter.com/your-username"
+    icon: "fab fa-twitter"
+  # 更多社交媒体...
 ```
 
-#### 设置网站图标
+> **📝 温馨提示**：
+> - 关于**字体设置**：
+>   - **system**表示使用系统自带字体，无需额外加载，页面加载速度更快
+>   - **google**表示从Google Fonts加载字体，选择更丰富，但可能影响加载速度
+>   - 中文网站推荐使用"Noto Sans SC"、"Source Han Sans CN"等支持中文的字体
+>   - 设置字重时请确保所选字体支持该字重值，否则可能无法正确显示
+> - 关于**个人资料**：profile.description支持较长文本，可以添加一些个性化的介绍或使用说明，让您的导航站更具特色
+> - 关于**社交媒体链接**：这些链接会显示在网站侧边栏的底部，方便访问者联系您
 
-网站图标设置提示：
+### 二、navigation.yml 配置文件
 
-- 支持.ico、.png等格式
-- 建议尺寸为32x32或16x16像素
-- 将图标文件放在assets目录下
-- 在配置文件中设置：`favicon: favicon.ico`
+navigation.yml文件定义网站左侧的导航菜单，支持添加多个自定义页面：
 
-#### 使用Font Awesome图标
-
-MeNav使用Font Awesome图标库为网站分类和链接提供图标：
-
-- **图标类名**：使用Font Awesome 5的图标类名，例如`fas fa-home`、`fab fa-github`等
-- **查找图标**：可在[Font Awesome官网](https://fontawesome.com/icons)浏览和搜索图标
-- **常用图标前缀**：
-  - `fas`：实心风格图标 (Font Awesome Solid)
-  - `far`：线框风格图标 (Font Awesome Regular)
-  - `fab`：品牌图标 (Font Awesome Brands)
-
-示例：
 ```yaml
-# 分类图标
+# 导航菜单配置示例
+- name: "首页"               # 菜单项名称
+  icon: "fas fa-home"        # 菜单项图标
+  id: "home"                 # 页面标识符（必须唯一）
+  active: true               # 是否默认激活（只能有一个为true）
+- name: "项目"
+  icon: "fas fa-project-diagram"
+  id: "projects"
+  active: false
+- name: "文章"
+  icon: "fas fa-book"
+  id: "articles"
+  active: false
+# 更多导航项...
+```
+
+> **📝 温馨提示**：
+> - 每个导航项的`id`必须唯一，并且有对应的页面配置文件（该id必须与`pages/`文件夹中的页面配置文件名一致）
+> - 只能设置一个导航项的`active`为`true`，作为默认显示页面
+> - 图标使用Font Awesome 5图标库，格式为`前缀 fa-图标名`
+> - 导航菜单的顺序与此配置文件中的顺序一致，可以通过调整项目顺序来更改导航顺序
+
+### 三、pages目录 配置文件
+
+pages目录包含每个页面的详细配置，每个文件对应一个页面。文件名必须与navigation.yml中的id一致。
+
+例如，对于导航中的"home"页面，需要创建`config/user/pages/home.yml`：
+
+```yaml
+# pages/home.yml示例
+title: "我的主页"          # 页面标题
+subtitle: "常用网站导航"   # 页面副标题
+
+# 分类和网站配置
 categories:
-  - name: "常用工具"
-    icon: "fas fa-tools"
-    sites:
-      - name: "GitHub"
-        url: "https://github.com"
-        icon: "fab fa-github"
-        description: "全球最大的代码托管平台"
-      - name: "谷歌搜索"
+  - name: "常用工具"          # 分类名称
+    icon: "fas fa-tools"      # 分类图标
+    sites:                    # 该分类下的网站列表
+      - name: "GitHub"        # 网站名称
+        url: "https://github.com"  # 网站链接
+        icon: "fab fa-github"      # 网站图标
+        description: "全球最大的代码托管平台"  # 网站描述
+      - name: "Google"
         url: "https://google.com"
         icon: "fab fa-google"
         description: "全球最大的搜索引擎"
+      # 更多网站...
+  # 更多分类...
 ```
 
-**提示**：书签导入功能会根据网站URL自动匹配适合的Font Awesome图标。如需自定义，可在导入后编辑配置文件修改图标类名。
+自定义页面配置示例（以"notes"为例）：
+
+1. 首先在navigation.yml中添加对应的导航项：
+```yaml
+- name: "笔记"
+  icon: "fas fa-sticky-note"
+  id: "notes"
+  active: false
+```
+
+2. 然后创建`config/user/pages/notes.yml`配置文件：
+```yaml
+title: "我的笔记收藏"          # 页面标题
+subtitle: "学习和工作笔记资源"  # 页面副标题
+categories:                   # 该页面的分类和网站
+  - name: "编程笔记"
+    icon: "fas fa-code"
+    sites:
+      - name: "Python学习笔记"
+        url: "https://example.com/python-notes"
+        icon: "fab fa-python"
+        description: "Python编程技巧和案例"
+      # 更多网站...
+```
+
+> **📝提示**：
+> - 每个页面可以拥有不同的分类和网站
+> - 网站描述建议简洁明了，不超过30个字符，以确保显示美观
+> - 不同页面可以特化用于不同用途，如"工作"、"学习"、"娱乐"等
+> - 页面数量不限，但建议控制在合理范围内，避免导航过长
+
+### 四、Font Awesome图标指南
+
+MeNav使用Font Awesome 5图标库，提供了丰富的图标选择：
+
+**常用图标前缀**：
+- `fas` - Font Awesome Solid (实心风格，最常用)
+- `far` - Font Awesome Regular (线框风格)
+- `fab` - Font Awesome Brands (品牌图标，用于各类网站品牌)
+
+**如何选择合适的图标**：
+1. 访问[Font Awesome官网](https://fontawesome.com/icons)搜索图标
+2. 复制图标名称，加上前缀使用
+3. 例如：`fas fa-book`、`fab fa-youtube`等
+
+**网站图标匹配建议**：
+- 对于知名网站和平台，优先使用`fab`前缀的品牌图标
+- 对于通用功能网站，选择能代表其功能的图标，如词典类用`fas fa-book`
+- 对于工具类网站，可使用`fas fa-tools`或更具体的工具图标
+
+### 五、配置文件结构示例
+
+**完整配置结构**：
+
+```
+config/user/
+├── site.yml         # 网站基本信息、字体、个人资料和社交媒体链接
+├── navigation.yml   # 导航菜单配置
+└── pages/
+    ├── home.yml     # 首页配置
+    ├── projects.yml # 项目页配置
+    ├── articles.yml # 文章页配置
+    ├── friends.yml  # 朋友页配置
+    └── notes.yml    # 自定义笔记页配置
+```
+
+### 六、常见配置问题解决
+
+1. **配置后不生效**
+   - 检查YAML格式是否正确，缩进是否一致
+   - 确认修改的是用户配置文件（`config/user/`目录），而非默认配置文件
+   - 运行`npm run dev`重新构建网站并查看
+
+2. **图标不显示**
+   - 确认图标名称和前缀是否正确（如`fas fa-home`）
+   - 检查Font Awesome是否支持该图标（在官网搜索确认）
+   - 注意图标名称中的连字符，如`fa-user-circle`而非`fa-usercircle`
+
+3. **字体加载问题**
+   - 确认Google字体名称拼写正确
+   - 使用system来源时，确保使用的是通用系统字体
+   - 中文字体推荐使用Noto Sans SC、Source Han Sans等支持中文的Google字体
+
+4. **配置文件优先级问题**
+   - 记住系统只会使用最高优先级的配置，不会合并不同配置
+   - 检查您是否在多个地方定义了相同的配置，造成覆盖
+
+> **📝 首次设置建议**：
+> - 首先复制`config/_default/`目录中的文件到`config/user/`目录
+> - 然后逐步修改各配置文件，保持目录结构一致
+> - 使用文本编辑器时注意保持正确的YAML格式和缩进
 
 </details>
 
@@ -532,11 +571,9 @@ MeNav支持从浏览器导入书签，快速批量添加网站链接，无需手
 书签配置按以下优先级加载（从高到低）：
 
 1. `config/user/pages/bookmarks.yml` （模块化用户配置）
-2. `bookmarks.user.yml`（双文件用户配置）
-3. `config/_default/pages/bookmarks.yml` （模块化默认配置）
-4. `bookmarks.yml`（双文件默认配置）
+2. `config/_default/pages/bookmarks.yml` （模块化默认配置）
 
-**注意：** 与主配置一样，书签配置采用完全替换策略，系统只会使用找到的最高优先级配置。
+**注意：** 书签配置采用完全替换策略，系统只会使用找到的最高优先级配置。
 
 ### 导入步骤详解
 
@@ -582,7 +619,7 @@ MeNav支持从浏览器导入书签，快速批量添加网站链接，无需手
    - 书签分类会变成网站分类
    - 书签文件夹结构会被保留
    - 系统自动尝试匹配网站图标
-   - 生成的配置可在`bookmarks.user.yml`或`config/user/pages/bookmarks.yml`中查看和编辑
+   - 生成的配置可在`config/user/pages/bookmarks.yml`中查看和编辑
 
 ### 书签导入注意事项
 
@@ -595,13 +632,13 @@ MeNav支持从浏览器导入书签，快速批量添加网站链接，无需手
 ## 常见问题
 
 <details>
-<summary>为什么推荐使用模块化配置而非双文件配置？</summary>
-模块化配置将不同功能的配置分散到多个文件中，便于管理和维护。当网站内容较多时，单一配置文件会变得臃肿难以编辑，而模块化配置则可以让您只关注需要修改的部分。
+<summary>模块化配置的优势是什么？</summary>
+模块化配置将不同功能的配置分散到多个文件中，便于管理和维护。当网站内容较多时，分散的配置文件让您可以只关注需要修改的特定部分，避免配置文件变得臃肿难以编辑。
 </details>
 
 <details>
 <summary>如何更改网站的主题或样式？</summary>
-目前MeNav采用统一的设计风格，您可以通过修改`config/user/site.yml`（或`config.user.yml`）中的字体设置来调整网站外观。未来版本将考虑增加主题切换功能。
+目前MeNav采用统一的设计风格，您可以通过修改`config/user/site.yml`中的字体设置来调整网站外观。未来版本将考虑增加主题切换功能。
 </details>
 
 <details>
@@ -611,7 +648,31 @@ MeNav支持从浏览器导入书签，快速批量添加网站链接，无需手
 
 <details>
 <summary>导入的书签没有正确显示图标怎么办？</summary>
-系统会尝试根据网址自动匹配Font Awesome图标。如果匹配不理想，您可以手动编辑`bookmarks.user.yml`或`config/user/pages/bookmarks.yml`，修改每个站点的icon属性。
+系统会尝试根据网址自动匹配Font Awesome图标。如果匹配不理想，您可以手动编辑`config/user/pages/bookmarks.yml`，修改每个站点的icon属性。
+</details>
+
+<details>
+<summary>如何从旧式配置迁移到模块化配置？</summary>
+
+由于MeNav已经移除了对旧式配置文件的支持，如果您仍在使用旧式配置文件，必须使用迁移工具进行转换：
+
+1. 自动迁移方式：
+   ```bash
+   npm run migrate-config
+   ```
+   该命令会自动检测旧式配置文件，并将其全部转换为模块化配置格式。
+
+2. 迁移过程：
+   - 工具会识别`config.yml`、`config.user.yml`、`bookmarks.yml`和`bookmarks.user.yml`
+   - 将它们转换并拆分到`config/user/`目录的对应文件中
+   - 保留所有原始配置数据，不会丢失任何设置
+
+3. 迁移后：
+   - 所有配置将被放置在`config/user/`目录及其子目录
+   - 迁移工具会告诉您可以安全删除的旧式配置文件
+   - 新的模块化配置立即生效，无需额外设置
+
+**重要提示**：MeNav现在只支持模块化配置文件。如果您仍在使用旧式配置，必须使用迁移工具进行转换才能继续使用最新版本的MeNav。
 </details>
 
 ## 贡献指南

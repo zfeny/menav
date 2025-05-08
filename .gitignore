@@ -16,13 +16,19 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Bookmark import files
-bookmarks/*
-!bookmarks/bookmarks_sample.html
-!bookmarks/README.md
-!bookmarks/.gitkeep
-test-bookmarks.ps1
-test-bookmarks.sh
 
 # 个人笔记
-note.md
+docs/*
+
+# 测试相关文件
+jest.config.js
+tests/
+coverage/
+.nyc_output/
+jest-*.json
+jest.results.json
+.eslintcache
+tests/screenshots/
+tests/fixtures/
+*.test.js
+*.spec.js
