@@ -4,7 +4,7 @@
   active: true
 - name: 自部署项目
   icon: fas fa-project-diagram
-  id: 2_projects
+  id: "2_projects"
   active: false
 - name: 摸鱼充电
   icon: fas fa-coffee
