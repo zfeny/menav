@@ -1,6 +1,6 @@
 - name: 首页
   icon: fas fa-home
-  id: "1_home"
+  id: "home"
   active: true
 - name: 自部署项目
   icon: fas fa-project-diagram
