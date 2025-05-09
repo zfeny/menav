@@ -679,6 +679,68 @@ body .content.expanded {
     color: var(--error-color);
 }
 
+/* 搜索图标和搜索引擎切换图标位置调整 */
+.search-box .search-icon {
+    right: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-box .search-engine-toggle {
+    right: 3.5rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* 搜索引擎下拉菜单 */
+.search-engine-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 1rem;
+    background-color: var(--sidebar-bg);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    display: none;
+    z-index: 100;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.search-engine-dropdown.active {
+    display: flex;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+.search-engine-option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0.3rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--card-bg-gradient-1);
+}
+
+.search-engine-option:hover {
+    background-color: var(--card-bg-gradient-2);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px var(--shadow-color);
+}
+
+.search-engine-option.active {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.search-engine-option i {
+    position: static;
+    transform: none;
+    font-size: 1.2rem;
+}
+
 /* 页面容器 */
 .page {
     position: relative;
