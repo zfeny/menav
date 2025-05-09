@@ -204,13 +204,22 @@ npm install
    - 可以参考`config/_default/`目录结构和内容
    - 自定义站点标题、描述、导航链接和网站分类等
 
-4. 本地预览
+4. 导入书签（可选）
+   - 将浏览器导出的HTML格式书签文件放入`bookmarks`目录
+   - 运行书签处理命令：
+   ```bash
+   npm run import-bookmarks
+   ```
+   - 系统会自动将书签转换为配置文件保存到`config/user/pages/bookmarks.yml`
+   - **注意**：`npm run dev`命令不会自动处理书签文件，必须先手动运行上述命令
+
+5. 本地预览
 ```bash
 # 启动开发服务器
 npm run dev
 ```
 
-5. 构建静态网站
+6. 构建静态网站
 ```bash
 # 生成静态HTML文件
 npm run build
@@ -584,6 +593,8 @@ config/user/
 MeNav支持从浏览器导入书签，快速批量添加网站链接，无需手动录入。
 
 > **🔔 重要提示**：系统只会处理位于文件夹内的书签，直接放在收藏夹根目录中的书签不会被导入。请确保您要导入的书签都放在文件夹中，每个文件夹将成为导航中的一个分类。
+
+> **⚠️ 开发模式说明**：在本地开发中，`npm run dev` 命令**不会**自动处理书签文件。您必须先手动运行 `npm run import-bookmarks` 命令处理书签，然后再运行 `npm run dev` 或 `npm run build` 查看效果。这与 GitHub Actions 中的自动处理流程不同，请务必注意。
 
 ### 配置加载优先级
 
