@@ -1503,9 +1503,16 @@ body .content.expanded {
 
 /* 子菜单展开状态 */
 .nav-item-wrapper.expanded .submenu {
-    max-height: 500px; /* 设置足够大的值以容纳所有可能的子菜单项 */
+    max-height: 300px; /* 设置合理的最大高度 */
+    overflow-y: scroll; /* 改为scroll确保始终能滚动 */
     opacity: 1;
     visibility: visible;
+    scrollbar-width: none; /* Firefox隐藏滚动条 */
+}
+
+/* 为WebKit浏览器隐藏滚动条 */
+.nav-item-wrapper.expanded .submenu::-webkit-scrollbar {
+    display: none;
 }
 
 /* 子菜单项样式 */
@@ -1562,9 +1569,16 @@ body .content.expanded {
 }
 
 .sidebar.collapsed .nav-item-wrapper:hover .submenu {
-    max-height: 500px;
+    max-height: 300px; /* 设置合理的最大高度 */
+    overflow-y: scroll; /* 改为scroll */
     opacity: 1;
     visibility: visible;
+    scrollbar-width: none; /* Firefox隐藏滚动条 */
+}
+
+/* 为WebKit浏览器隐藏滚动条 */
+.sidebar.collapsed .nav-item-wrapper:hover .submenu::-webkit-scrollbar {
+    display: none;
 }
 
 .sidebar.collapsed .submenu-toggle {
