@@ -8,11 +8,11 @@ categories:
       - name: 在线DNS解析
         url: http://www.ip33.com/dns.html
         icon: fas fa-globe
-        description: 在线DNS解析查询工具，支持多种DNS记录类型
+        description: 在线DNS解析查询工具
       - name: 公共DNS服务器大全
         url: https://dns.iui.im/
         icon: fas fa-globe
-        description: 公共DNS服务器列表，支持IPv4和IPv6
+        description: 公共DNS服务器列表
       - name: Ping0
         url: https://ping0.cc/
         icon: fas fa-plug
@@ -20,41 +20,53 @@ categories:
       - name: Scamalytics
         url: https://scamalytics.com
         icon: fas fa-plug
-        description: IP信誉查询工具，支持IP地址和域名查询
+        description: IP信誉查询工具
       - name: 域名比价
         url: https://zh-hans.tld-list.com/
         icon: fas fa-globe
-        description: 域名注册商价格比较工具，支持多种顶级域名
+        description: 域名注册商价格比较工具
       - name: 在线Ping
         url: https://ping.eu
         icon: fas fa-plug
-        description: 在线Ping测试工具，支持多种网络协议
+        description: 在线Ping测试工具
       - name: IPIP.net
         url: https://www.ipip.net
         icon: fas fa-globe
-        description: IP地址查询工具，支持IP地址定位和反向解析
+        description: IP地址查询工具
       - name: IP138
         url: https://www.ip138.com
         icon: fas fa-globe
-        description: IP地址查询工具，支持IP地址定位和反向解析
+        description: IP地址查询工具
+  - name: 破解软件
+    icon: fas fa-lock
+    sites:
+      - name: 绿软小站
+        url: https://www.gndown.com
+        icon: fas fa-lock
+      - name: Crackz
+        url: https://crackz.org
+        icon: fas fa-lock
+      - name: CracksNow
+        url: https://cracksnow.com
+        icon: fas fa-lock
   - name: 格式转换
     icon: fas fa-exchange-alt
     sites:
       - name: Convertio
         url: https://convertio.co/zh
         icon: fas fa-exchange-alt
-        description: 在线文件转换器，支持多种格式
+        description: 在线文件转换器
       - name: Online-Convert
         url: https://www.online-convert.com/zh
         icon: fas fa-exchange-alt
-        description: 多功能在线转换工具，支持多种文件格式
+        description: 多功能在线转换工具
   - name: 单位换算
     icon: fas fa-balance-scale
     sites:
       - name: Unit Converter
         url: https://www.unitconverters.net
         icon: fas fa-balance-scale
-        description: 多种单位换算工具，支持长度、面积、体积等多种单位
+        description: 多种单位换算工具
       - name: ConvertUnits
         url: https://www.convertunits.com
         icon: fas fa-balance-scale
@@ -62,22 +74,22 @@ categories:
       - name: RapidTables
         url: https://www.rapidtables.com/convert
         icon: fas fa-balance-scale
-        description: 多种单位换算工具，支持长度、面积、体积等多种单位
+        description: 多种单位换算工具
       - name: Metric Conversions
         url: https://www.metric-conversions.org
         icon: fas fa-balance-scale
-        description: 公制单位换算工具，支持长度、面积、体积等多种单位
+        description: 公制单位换算工具
   - name: 临时邮箱
     icon: fas fa-envelope
     sites:
       - name: Temp Mail
         url: https://temp-mail.org/zh
         icon: fas fa-envelope
-        description: 临时邮箱服务，支持匿名接收邮件
+        description: 临时邮箱服务
       - name: 10 Minute Mail
         url: https://10minutemail.com/zh
         icon: fas fa-envelope
-        description: 10分钟临时邮箱，支持匿名接收邮件
+        description: 10分钟临时邮箱
   - name: 开发工具
     icon: fas fa-tools
     sites:
@@ -106,7 +118,7 @@ categories:
         description: JSON在线编辑器
       - name: Can I Use
         url: https://caniuse.com
-        icon: fas fa-browser
+        icon: fa-brands fa-internet-explorer
         description: 浏览器兼容性查询
       - name: TinyPNG
         url: https://tinypng.com

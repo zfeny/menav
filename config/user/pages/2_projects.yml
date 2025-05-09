@@ -19,7 +19,7 @@ categories:
         description: 账户鉴权/内外网分流访问面板
       - name: NewAPI
         url: https://api.534612.xyz
-        icon: fas 
+        icon: fas fa-tape
         description: 自部署API聚合平台
 
   - name: 存储同步类
@@ -54,7 +54,7 @@ categories:
         description: 高级大语言模型对话平台
       - name: NewAPI
         url: https://api.534612.xyz
-        icon: fas 
+        icon: fas fa-tape
         description: 自部署API聚合平台
   - name: 订阅服务类
     icon: fas fa-rss
